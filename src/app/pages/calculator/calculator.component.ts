@@ -67,6 +67,10 @@ export class CalculatorComponent {
   appliances = signal<CalculatorAppliance[]>(JSON.parse(JSON.stringify(this.presetAppliances)));
   backupHours = signal<number>(4);
 
+  // Solar Panel Selection (Partapur local standard defaults to 150W)
+  selectedPanelWatts = signal<number>(150);
+  panelOptions = [150, 335, 450, 540];
+
   // Custom appliance state
   showCustomForm = signal(false);
   customName = signal('');
@@ -205,4 +209,14 @@ export class CalculatorComponent {
     if (rawkW <= 10) return 10.0;
     return Math.ceil(rawkW);
   });
+
+  recOnGridPanelsCount = computed(() => Math.ceil((this.recOnGridSolarkW() * 1000) / this.selectedPanelWatts()));
+  recOffGridPanelsCount = computed(() => Math.ceil((this.recOffGridSolarkW() * 1000) / this.selectedPanelWatts()));
+  
+  // Assumes average tariff rate of ₹8 per unit and daily generation of 4 units per kW
+  recOnGridMonthlySavings = computed(() => Math.round(this.recOnGridSolarkW() * 4 * 8 * 30));
+  
+  // Roof area requirement assumes ~85 sq. ft. per kWp
+  recOnGridAreaRequired = computed(() => Math.round(this.recOnGridSolarkW() * 85));
+  recOffGridAreaRequired = computed(() => Math.round(this.recOffGridSolarkW() * 85));
 }
