@@ -1,12 +1,33 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, signal, inject } from '@angular/core';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { HeaderComponent } from './components/header/header.component';
+import { FooterComponent } from './components/footer/footer.component';
+import { AdminSidebarComponent } from './components/admin-sidebar/admin-sidebar.component';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  standalone: true,
+  imports: [
+    CommonModule, 
+    RouterOutlet, 
+    HeaderComponent, 
+    FooterComponent, 
+    AdminSidebarComponent
+  ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.css',
 })
 export class App {
-  protected readonly title = signal('mohammadi-electronics');
+  private router = inject(Router);
+  isAdminMode = signal(false);
+
+  constructor() {
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.isAdminMode.set(event.urlAfterRedirects.startsWith('/admin'));
+    });
+  }
 }

@@ -1,0 +1,120 @@
+<div class="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+  <!-- Header -->
+  <div class="text-center mb-12">
+    <h1 class="text-4xl font-extrabold tracking-tight text-white mb-3">
+      Share Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-teal-400">Feedback</span>
+    </h1>
+    <p class="text-slate-400">
+      How was your purchasing or repair service experience? Share your ratings and suggestions on what appliances or spares we should add or improve in Bedwa road, Partapur.
+    </p>
+  </div>
+
+  <!-- Feedback Form Container -->
+  <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-3xl p-6 md:p-10 shadow-2xl relative">
+    @if (isSubmitted()) {
+      <!-- Success State -->
+      <div class="text-center py-12 space-y-4 animate-fade-in">
+        <div class="inline-flex p-3 bg-teal-500/10 text-teal-400 rounded-full border border-teal-500/30 shadow-[0_0_20px_rgba(20,184,166,0.2)] mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-white">Thank You for Your Feedback!</h2>
+        <p class="text-slate-455 max-w-md mx-auto text-sm">
+          We appreciate your feedback, <strong class="text-teal-400">{{ submittedName || 'Valued Customer' }}</strong>. Your thoughts will help us enhance our electronics shop services in Partapur.
+        </p>
+        <div class="pt-6">
+          <button 
+            (click)="resetForm()"
+            class="px-6 py-2.5 bg-slate-950 border border-slate-850 hover:border-slate-700 text-slate-300 hover:text-white rounded-xl text-sm font-semibold transition-all cursor-pointer"
+          >
+            Submit More Feedback
+          </button>
+        </div>
+      </div>
+    } @else {
+      <!-- Feedback Form -->
+      <form #feedbackForm="ngForm" (ngSubmit)="onSubmit(feedbackForm)" class="space-y-6">
+        
+        <!-- Rating Star Selector -->
+        <div>
+          <label class="block text-sm font-bold text-slate-350 mb-3">Rate Your Experience <span class="text-rose-500">*</span></label>
+          <div class="flex items-center gap-2">
+            @for (star of [1, 2, 3, 4, 5]; track star) {
+              <button
+                type="button"
+                (click)="setRating(star)"
+                (mouseenter)="hoverRating.set(star)"
+                (mouseleave)="hoverRating.set(0)"
+                class="p-1 focus:outline-none transition-transform hover:scale-110 cursor-pointer"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-9 w-9 transition-all duration-150"
+                  [class]="isStarActive(star) 
+                    ? 'fill-amber-400 stroke-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]' 
+                    : 'fill-transparent stroke-slate-600 hover:stroke-slate-400'"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499c.195-.558.943-.558 1.138 0l2.091 5.864a1 1 0 00.95.69h6.218c.59 0 .835.754.358 1.096l-5.029 3.51a1 1 0 00-.364 1.118l2.092 5.864c.195.558-.42.996-.899.697l-5.029-3.51a1 1 0 00-1.178 0l-5.029 3.51c-.478.299-1.094-.139-.899-.697l2.092-5.864a1 1 0 00-.364-1.118L2.09 11.15c-.477-.342-.232-1.096.357-1.096h6.218a1 1 0 00.95-.69L11.48 3.5z" />
+                </svg>
+              </button>
+            }
+            <span class="ml-3 text-sm text-slate-400 font-semibold font-mono" [ngSwitch]="rating() || hoverRating()">
+              <span *ngSwitchCase="1" class="text-rose-450">Disappointing</span>
+              <span *ngSwitchCase="2" class="text-orange-450">Needs Improvement</span>
+              <span *ngSwitchCase="3" class="text-amber-400">Average</span>
+              <span *ngSwitchCase="4" class="text-teal-400">Good</span>
+              <span *ngSwitchCase="5" class="text-emerald-400 font-bold">Outstanding!</span>
+              <span *ngSwitchDefault class="text-slate-500">Select rating</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Customer Name -->
+        <div>
+          <label for="name" class="block text-sm font-bold text-slate-355 mb-2">Your Name (Optional)</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            [(ngModel)]="formData.name"
+            placeholder="e.g. Vikram Singh (or leave blank to remain Anonymous)"
+            class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500/25 transition-all text-sm"
+          />
+        </div>
+
+        <!-- Comments Area -->
+        <div>
+          <label for="comments" class="block text-sm font-bold text-slate-355 mb-2">Suggestions / Reviews <span class="text-rose-500">*</span></label>
+          <textarea
+            id="comments"
+            name="comments"
+            required
+            rows="4"
+            minlength="5"
+            [(ngModel)]="formData.comments"
+            #commentsInput="ngModel"
+            placeholder="Write your suggestions on what products to add, or how we can improve our services..."
+            class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-655 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500/25 transition-all text-sm resize-none"
+            [ngClass]="{ 'border-rose-550 focus:border-rose-500': commentsInput.invalid && (commentsInput.dirty || commentsInput.touched) }"
+          ></textarea>
+          @if (commentsInput.invalid && (commentsInput.dirty || commentsInput.touched)) {
+            <span class="text-xs text-rose-400 mt-1 block">Comment description is required.</span>
+          }
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          [disabled]="feedbackForm.invalid || rating() === 0"
+          class="w-full py-3.5 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-slate-950 font-bold rounded-2xl text-sm uppercase tracking-wider transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(20,184,166,0.15)]"
+        >
+          Submit Feedback
+        </button>
+
+      </form>
+    }
+  </div>
+</div>

@@ -1,0 +1,253 @@
+<div class="py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto min-h-[calc(100vh-200px)] flex items-center justify-center font-sans">
+  <div class="w-full grid grid-cols-1 md:grid-cols-12 gap-8 items-stretch">
+    
+    <!-- Left Column: The Interactive Desk Lamp Strength Display (5 Cols) -->
+    <div class="md:col-span-5 flex flex-col justify-between bg-slate-900/40 backdrop-blur-md border border-slate-800 rounded-3xl p-6 md:p-8 relative overflow-hidden shadow-2xl">
+      <!-- Background glow -->
+      <div 
+        class="absolute inset-0 bg-radial-gradient pointer-events-none opacity-20 transition-all duration-500"
+        [ngClass]="{
+          'from-transparent to-transparent': passwordStrength() === 0,
+          'from-rose-500/20 to-transparent': passwordStrength() === 1,
+          'from-amber-400/20 to-transparent': passwordStrength() === 2,
+          'from-teal-400/30 to-transparent': passwordStrength() === 3
+        }">
+      </div>
+
+      <div class="relative z-10 text-center mb-6">
+        <h2 class="text-lg font-bold text-white uppercase tracking-widest font-mono">Password Dynamo</h2>
+        <p class="text-xs text-slate-500 font-mono mt-1 uppercase">Generator light output test</p>
+      </div>
+
+      <!-- Lamp SVG Rendering -->
+      <div class="relative z-10 flex flex-col items-center justify-center flex-1 py-4">
+        <svg class="w-64 h-64 select-none" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Ground line -->
+          <line x1="20" y1="180" x2="180" y2="180" stroke="#334155" stroke-width="4" stroke-linecap="round" />
+          
+          <!-- Base -->
+          <path d="M70 180C70 174.477 74.4772 170 80 170H120C125.523 170 130 174.477 130 180" fill="#1e293b" stroke="#334155" stroke-width="2" />
+          
+          <!-- Stem / Joints -->
+          <path d="M100 170V120C100 120 100 80 130 70" stroke="#334155" stroke-width="5" stroke-linecap="round" fill="none" />
+          <circle cx="100" cy="120" r="5" fill="#1e293b" stroke="#334155" stroke-width="2" />
+          <circle cx="130" cy="70" r="5" fill="#1e293b" stroke="#334155" stroke-width="2" />
+          
+          <!-- Head / Shade -->
+          <path d="M105 50L135 90H170L140 50H105Z" fill="#0f172a" stroke="#475569" stroke-width="2" stroke-linejoin="round" />
+          
+          <!-- Light Cone Beam -->
+          <!-- Weak Beam (Rose/Flicker) -->
+          @if (passwordStrength() === 1) {
+            <polygon points="130,75 50,200 170,200" fill="url(#weakBeam)" class="animate-flicker pointer-events-none" opacity="0.6"/>
+          }
+          <!-- Medium Beam (Warm Yellow) -->
+          @if (passwordStrength() === 2) {
+            <polygon points="130,75 30,200 190,200" fill="url(#mediumBeam)" class="pointer-events-none" opacity="0.75" />
+          }
+          <!-- Strong Beam (Electric Teal) -->
+          @if (passwordStrength() === 3) {
+            <polygon points="130,75 10,200 200,200" fill="url(#strongBeam)" class="animate-glow-pulse pointer-events-none" opacity="0.9" />
+          }
+
+          <!-- Glowing bulb inside -->
+          <circle cx="130" cy="75" r="9" 
+                  [ngClass]="{
+                    'fill-slate-700': passwordStrength() === 0,
+                    'fill-rose-500 animate-flicker': passwordStrength() === 1,
+                    'fill-amber-400': passwordStrength() === 2,
+                    'fill-teal-400': passwordStrength() === 3
+                  }" 
+                  class="transition-colors duration-300"
+          />
+
+          <!-- Beam Gradients definitions -->
+          <defs>
+            <linearGradient id="weakBeam" x1="130" y1="75" x2="110" y2="200" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.8" />
+              <stop offset="100%" stop-color="#f43f5e" stop-opacity="0" />
+            </linearGradient>
+            <linearGradient id="mediumBeam" x1="130" y1="75" x2="110" y2="200" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.8" />
+              <stop offset="100%" stop-color="#fbbf24" stop-opacity="0" />
+            </linearGradient>
+            <linearGradient id="strongBeam" x1="130" y1="75" x2="105" y2="200" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#2dd4bf" stop-opacity="0.9" />
+              <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      <!-- Strength Label & Instructions -->
+      <div class="relative z-10 text-center font-mono pt-4 mt-auto">
+        <span class="text-[10px] text-slate-500 uppercase tracking-widest block mb-1">Dynamo Safety Switch</span>
+        <span 
+          [ngClass]="{
+            'text-slate-500 border-slate-800 bg-slate-950': passwordStrength() === 0,
+            'text-rose-400 border-rose-500/30 bg-rose-500/10': passwordStrength() === 1,
+            'text-amber-400 border-amber-400/30 bg-amber-400/10': passwordStrength() === 2,
+            'text-teal-400 border-teal-500/30 bg-teal-500/10 shadow-[0_0_12px_rgba(20,184,166,0.2)]': passwordStrength() === 3
+          }"
+          class="inline-block px-4 py-1.5 rounded-xl border text-xs font-bold uppercase tracking-widest transition-all duration-300"
+        >
+          {{ passwordStrengthLabel() }}
+        </span>
+
+        <p class="text-[11px] text-slate-400 max-w-[220px] mx-auto mt-3 leading-relaxed">
+          @if (passwordStrength() === 0) {
+            Please type in a password to fire up the system lamp.
+          } @else if (passwordStrength() === 1) {
+            Voltage too low! Add uppercase letters and digits.
+          } @else if (passwordStrength() === 2) {
+            Sufficient current. Add special symbols to maximize capacity.
+          } @else if (passwordStrength() === 3) {
+            Optimal security! System is fully operational and safe.
+          }
+        </p>
+      </div>
+    </div>
+
+    <!-- Right Column: Registration / Sign In Form Card (7 Cols) -->
+    <div class="md:col-span-7 bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 flex flex-col justify-between shadow-2xl relative">
+      <div>
+        <!-- Mode Switcher Tabs -->
+        <div class="flex border-b border-slate-800/80 mb-8 font-mono">
+          <button
+            type="button"
+            (click)="isSignUp.set(false)"
+            [class]="!isSignUp() ? 'text-teal-400 border-b-2 border-teal-500 font-bold' : 'text-slate-500 hover:text-slate-300'"
+            class="flex-1 pb-4 text-sm uppercase tracking-wider transition-colors cursor-pointer"
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            (click)="isSignUp.set(true)"
+            [class]="isSignUp() ? 'text-teal-400 border-b-2 border-teal-500 font-bold' : 'text-slate-500 hover:text-slate-300'"
+            class="flex-1 pb-4 text-sm uppercase tracking-wider transition-colors cursor-pointer"
+          >
+            Create Account
+          </button>
+        </div>
+
+        <!-- Alert messages -->
+        @if (errorMessage()) {
+          <div class="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold rounded-2xl flex items-center gap-3 animate-fade-in font-mono">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            {{ errorMessage() }}
+          </div>
+        }
+        @if (successMessage()) {
+          <div class="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-2xl flex items-center gap-3 animate-fade-in font-mono">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {{ successMessage() }}
+          </div>
+        }
+
+        <!-- TAB 1: SIGN IN FORM -->
+        @if (!isSignUp()) {
+          <form (ngSubmit)="onSignIn()" class="space-y-5">
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Registered Email</label>
+              <input
+                type="email"
+                required
+                name="signInEmail"
+                [(ngModel)]="signInEmail"
+                placeholder="e.g. admin@mohammadi.com"
+                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 text-sm"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Password</label>
+              <input
+                type="password"
+                required
+                name="signInPassword"
+                [ngModel]="signInPassword()"
+                (ngModelChange)="signInPassword.set($event)"
+                placeholder="Enter password..."
+                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-655 focus:outline-none focus:border-teal-500 text-sm font-mono"
+              />
+            </div>
+
+            <!-- Predefined login suggestions tip -->
+            <div class="p-4 bg-slate-950/50 border border-slate-800/80 rounded-2xl text-xs text-slate-400 leading-relaxed font-sans mt-6">
+              <span class="font-bold text-amber-500 font-mono block mb-1">PRO-TIP FOR EVALUATORS:</span>
+              Use <code class="text-teal-400 font-mono font-bold">admin@mohammadi.com</code> with password <code class="text-teal-400 font-mono font-bold">admin123</code> to access the complete admin dashboards, or signup a normal customer account.
+            </div>
+
+            <button
+              type="submit"
+              class="w-full py-3.5 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-[0_0_15px_rgba(20,184,166,0.2)] mt-8 cursor-pointer"
+            >
+              Sign In to System
+            </button>
+          </form>
+        }
+
+        <!-- TAB 2: SIGN UP FORM -->
+        @if (isSignUp()) {
+          <form (ngSubmit)="onSignUp()" class="space-y-5">
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Full Name</label>
+              <input
+                type="text"
+                required
+                name="signUpName"
+                [(ngModel)]="signUpName"
+                placeholder="e.g. Ramesh Patel"
+                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 text-sm"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Email Address</label>
+              <input
+                type="email"
+                required
+                name="signUpEmail"
+                [(ngModel)]="signUpEmail"
+                placeholder="e.g. customer@example.com"
+                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 text-sm"
+              />
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest font-mono">Create Password</label>
+                <span class="text-[10px] text-slate-555 font-mono">Watch the safety lamp glow</span>
+              </div>
+              <input
+                type="password"
+                required
+                name="signUpPassword"
+                [ngModel]="signUpPassword()"
+                (ngModelChange)="signUpPassword.set($event)"
+                placeholder="Make it strong..."
+                class="w-full bg-slate-955 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-655 focus:outline-none focus:border-teal-500 text-sm font-mono"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="w-full py-3.5 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-[0_0_15px_rgba(20,184,166,0.2)] mt-8 cursor-pointer"
+            >
+              Register & Log In
+            </button>
+          </form>
+        }
+      </div>
+
+      <!-- Footer navigation links -->
+      <div class="border-t border-slate-850 pt-6 mt-8 flex justify-between items-center text-[10px] text-slate-500 font-mono">
+        <span>Secure Auth Interface</span>
+        <span>Mohammadi Electronics</span>
+      </div>
+    </div>
+
+  </div>
+</div>

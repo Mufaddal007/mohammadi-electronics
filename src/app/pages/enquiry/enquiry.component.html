@@ -1,0 +1,145 @@
+<div class="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+  <!-- Header -->
+  <div class="text-center mb-12">
+    <h1 class="text-4xl font-extrabold tracking-tight text-white mb-3">
+      Raise <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-teal-400">Service Request</span>
+    </h1>
+    <p class="text-slate-400">
+      Inverter discharge checkups, cooler pump replacement, stabilizer repair, or custom installation. Fill out the request form below and our technicians will contact you shortly.
+    </p>
+  </div>
+
+  <!-- Main Form Container -->
+  <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-3xl p-6 md:p-10 shadow-2xl relative">
+    @if (isSubmitted()) {
+      <!-- Success State -->
+      <div class="text-center py-12 space-y-4 animate-fade-in">
+        <div class="inline-flex p-3 bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.2)] mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-white">Enquiry Received Successfully!</h2>
+        <p class="text-slate-450 max-w-md mx-auto text-sm">
+          Thank you, <strong class="text-teal-400">{{ submittedName }}</strong>. Your request for <span class="text-slate-200">{{ submittedAppliance }}</span> has been submitted to Mohammadi Electronics. 
+        </p>
+        <p class="text-xs text-slate-500 font-mono">Reference ID: enq-{{ lastGeneratedId }}</p>
+        <div class="pt-6">
+          <button 
+            (click)="resetForm()"
+            class="px-6 py-2.5 bg-slate-950 border border-slate-850 hover:border-slate-700 text-slate-300 hover:text-white rounded-xl text-sm font-semibold transition-all cursor-pointer"
+          >
+            Submit Another Request
+          </button>
+        </div>
+      </div>
+    } @else {
+      <!-- Form State -->
+      <form #enquiryForm="ngForm" (ngSubmit)="onSubmit(enquiryForm)" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Name Input -->
+          <div>
+            <label for="name" class="block text-sm font-bold text-slate-350 mb-2">Customer Name <span class="text-rose-500">*</span></label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              [(ngModel)]="formData.name"
+              #nameInput="ngModel"
+              placeholder="e.g. Rajesh Sharma"
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500/25 transition-all text-sm"
+              [ngClass]="{ 'border-rose-550 focus:border-rose-500': nameInput.invalid && (nameInput.dirty || nameInput.touched) }"
+            />
+            @if (nameInput.invalid && (nameInput.dirty || nameInput.touched)) {
+              <span class="text-xs text-rose-400 mt-1 block">Full name is required.</span>
+            }
+          </div>
+
+          <!-- Phone Input -->
+          <div>
+            <label for="phone" class="block text-sm font-bold text-slate-350 mb-2">Phone Number <span class="text-rose-500">*</span></label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              required
+              pattern="^[0-9]{10}$"
+              [(ngModel)]="formData.phone"
+              #phoneInput="ngModel"
+              placeholder="e.g. 9876543210 (10 digits)"
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500/25 transition-all text-sm"
+              [ngClass]="{ 'border-rose-550 focus:border-rose-500': phoneInput.invalid && (phoneInput.dirty || phoneInput.touched) }"
+            />
+            @if (phoneInput.invalid && (phoneInput.dirty || phoneInput.touched)) {
+              <span class="text-xs text-rose-400 mt-1 block">Valid 10-digit mobile number is required.</span>
+            }
+          </div>
+        </div>
+
+        <!-- Appliance Selection dropdown -->
+        <div>
+          <label for="applianceType" class="block text-sm font-bold text-slate-350 mb-2">Appliance Type <span class="text-rose-500">*</span></label>
+          <select
+            id="applianceType"
+            name="applianceType"
+            required
+            [(ngModel)]="formData.applianceType"
+            #applianceInput="ngModel"
+            class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-teal-500 transition-all text-sm cursor-pointer"
+          >
+            <option value="" disabled>Select the electrical appliance...</option>
+            <option value="Inverter & Battery Setup">Inverter & Battery Setup</option>
+            <option value="Tubular Battery Only">Tubular Battery Only</option>
+            <option value="Desert Cooler">Desert Cooler</option>
+            <option value="Ceiling/Exhaust Fan">Ceiling/Exhaust Fan</option>
+            <option value="Voltage Stabilizer">Voltage Stabilizer</option>
+            <option value="Wiring / Spare Parts">Wiring / Spare Parts</option>
+            <option value="Other Appliance">Other Appliance</option>
+          </select>
+        </div>
+
+        <!-- Issue Description -->
+        <div>
+          <label for="issueDescription" class="block text-sm font-bold text-slate-350 mb-2">Issue / Service Details <span class="text-rose-500">*</span></label>
+          <textarea
+            id="issueDescription"
+            name="issueDescription"
+            required
+            rows="4"
+            minlength="10"
+            [(ngModel)]="formData.issueDescription"
+            #descInput="ngModel"
+            placeholder="Describe the issue or specify the details of the service required..."
+            class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500/25 transition-all text-sm resize-none"
+            [ngClass]="{ 'border-rose-550 focus:border-rose-500': descInput.invalid && (descInput.dirty || descInput.touched) }"
+          ></textarea>
+          @if (descInput.invalid && (descInput.dirty || descInput.touched)) {
+            <span class="text-xs text-rose-400 mt-1 block">Description must be at least 10 characters long.</span>
+          }
+        </div>
+
+        <!-- Urgent Banner Info -->
+        <div class="p-4 bg-slate-950/40 border border-slate-850 rounded-2xl flex items-center gap-3">
+          <span class="p-2 bg-amber-500/10 text-amber-500 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </span>
+          <p class="text-xs text-slate-400">
+            **Urgent issue?** Call us directly at <a href="tel:+919413282752" class="text-amber-500 font-bold hover:underline">+91-9413282752</a> for priority emergency service scheduling.
+          </p>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          [disabled]="enquiryForm.invalid"
+          class="w-full py-3.5 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-slate-950 font-bold rounded-2xl text-sm uppercase tracking-wider transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(20,184,166,0.15)]"
+        >
+          Submit Service Request
+        </button>
+      </form>
+    }
+  </div>
+</div>

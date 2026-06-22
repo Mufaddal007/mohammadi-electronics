@@ -1,0 +1,187 @@
+<div class="space-y-8 max-w-7xl mx-auto">
+  <!-- Title -->
+  <div>
+    <h1 class="text-3xl font-black tracking-tight text-white font-sans uppercase">Dashboard Overview</h1>
+    <p class="text-xs text-slate-400 font-mono mt-1">REAL-TIME DATA RECOVERY SYSTEMS ACTIVE</p>
+  </div>
+
+  <!-- KPI Statistics Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    
+    <!-- Total Products Card -->
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center justify-between shadow-md relative overflow-hidden group hover:border-slate-700 transition-colors">
+      <div class="space-y-1">
+        <span class="text-xs text-slate-500 font-bold uppercase tracking-wider font-mono">Catalog Size</span>
+        <span class="text-3xl font-black text-white block font-mono">{{ stats().totalProducts }}</span>
+        <span class="text-[10px] text-teal-400 font-medium">Active Products</span>
+      </div>
+      <div class="p-3 bg-teal-500/10 text-teal-400 rounded-xl">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Total Enquiries Card -->
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center justify-between shadow-md relative overflow-hidden group hover:border-slate-700 transition-colors">
+      <div class="space-y-1">
+        <span class="text-xs text-slate-500 font-bold uppercase tracking-wider font-mono">Total Enquiries</span>
+        <span class="text-3xl font-black text-white block font-mono">{{ stats().totalEnquiries }}</span>
+        <span class="text-[10px] text-slate-400 font-medium">Service & Install</span>
+      </div>
+      <div class="p-3 bg-blue-500/10 text-blue-400 rounded-xl">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Pending Enquiries Card -->
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center justify-between shadow-md relative overflow-hidden group hover:border-slate-700 transition-colors">
+      <div class="space-y-1">
+        <span class="text-xs text-slate-500 font-bold uppercase tracking-wider font-mono">Pending Requests</span>
+        <span class="text-3xl font-black text-amber-500 block font-mono">{{ stats().pendingEnquiries }}</span>
+        <span class="text-[10px] text-amber-400 font-medium">Action Required</span>
+      </div>
+      <div class="p-3 bg-amber-500/10 text-amber-500 rounded-xl">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Average Rating Card -->
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex items-center justify-between shadow-md relative overflow-hidden group hover:border-slate-700 transition-colors">
+      <div class="space-y-1">
+        <span class="text-xs text-slate-500 font-bold uppercase tracking-wider font-mono">Customer Rating</span>
+        <span class="text-3xl font-black text-emerald-400 block font-mono">{{ stats().averageRating }}<span class="text-sm text-slate-400 font-sans">/5</span></span>
+        <span class="text-[10px] text-emerald-400 font-medium">Top Reviews</span>
+      </div>
+      <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.48 3.499c.195-.558.943-.558 1.138 0l2.091 5.864a1 1 0 00.95.69h6.218c.59 0 .835.754.358 1.096l-5.029 3.51a1 1 0 00-.364 1.118l2.092 5.864c.195.558-.42.996-.899.697l-5.029-3.51a1 1 0 00-1.178 0l-5.029 3.51c-.478.299-1.094-.139-.899-.697l2.092-5.864a1 1 0 00-.364-1.118L2.09 11.15c-.477-.342-.232-1.096.357-1.096h6.218a1 1 0 00.95-.69L11.48 3.5z" />
+        </svg>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Main Columns -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- Left Side: Recent Enquiries Table (8 Cols) -->
+    <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg font-bold text-white font-sans uppercase">Recent Enquiries</h2>
+        <a routerLink="/admin/enquiries" class="text-xs font-bold text-teal-400 hover:underline">View All &rarr;</a>
+      </div>
+
+      @if (recentEnquiries().length > 0) {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-500 text-xs font-mono uppercase tracking-wider">
+                <th class="pb-3 font-semibold">Client</th>
+                <th class="pb-3 font-semibold">Appliance</th>
+                <th class="pb-3 font-semibold">Date</th>
+                <th class="pb-3 font-semibold text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-850">
+              @for (enq of recentEnquiries(); track enq.id) {
+                <tr class="hover:bg-slate-950/20 transition-colors">
+                  <td class="py-3.5">
+                    <div class="font-bold text-white">{{ enq.name }}</div>
+                    <div class="text-xs text-slate-500 font-mono">{{ enq.phone }}</div>
+                  </td>
+                  <td class="py-3.5 text-slate-300">
+                    {{ enq.applianceType }}
+                  </td>
+                  <td class="py-3.5 text-xs text-slate-500 font-mono">
+                    {{ enq.date | date:'dd MMM yyyy, hh:mm a' }}
+                  </td>
+                  <td class="py-3.5 text-right">
+                    <span 
+                      [class]="enq.status === 'Pending' 
+                        ? 'bg-amber-500/10 text-amber-400 border border-amber-500/25' 
+                        : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/25'"
+                      class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                    >
+                      {{ enq.status }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="text-center py-12 text-slate-500">
+          No enquiries registered yet.
+        </div>
+      }
+    </div>
+
+    <!-- Right Side: Category Summary & Feedbacks (4 Cols) -->
+    <div class="lg:col-span-4 space-y-6">
+      
+      <!-- Category Analytics Widget -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-md">
+        <h2 class="text-sm font-bold text-slate-350 uppercase tracking-widest font-mono mb-4">Most Popular Category</h2>
+        <div class="p-4 bg-slate-955 border border-slate-850 rounded-xl text-center">
+          <span class="block text-2xl font-black text-teal-400 font-mono uppercase tracking-wide">
+            {{ stats().mostPopularCategory }}
+          </span>
+          <span class="text-xs text-slate-500 block mt-1">Based on current stocking levels</span>
+        </div>
+        <div class="mt-4 pt-4 border-t border-slate-855 space-y-2">
+          <div class="text-xs text-slate-400 flex justify-between">
+            <span>Total Active Brands:</span>
+            <span class="font-bold text-white font-mono">5 Brands</span>
+          </div>
+          <div class="text-xs text-slate-400 flex justify-between">
+            <span>Active Supplier Stock:</span>
+            <span class="font-bold text-emerald-400 font-mono">In-Stock</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feedbacks Quick Feed -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-md">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-sm font-bold text-slate-350 uppercase tracking-widest font-mono">Latest Reviews</h2>
+          <a routerLink="/admin/feedbacks" class="text-xs font-bold text-teal-400 hover:underline">View All</a>
+        </div>
+
+        <div class="space-y-4">
+          @for (fb of recentFeedbacks(); track fb.id) {
+            <div class="p-3 bg-slate-950/60 border border-slate-850 rounded-xl text-xs space-y-1.5">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-slate-300">{{ fb.name || 'Anonymous' }}</span>
+                <!-- Star Row -->
+                <div class="flex items-center text-amber-400">
+                  @for (s of [1, 2, 3, 4, 5]; track s) {
+                    <svg 
+                      [class]="s <= fb.rating ? 'fill-current' : 'fill-none stroke-current'" 
+                      xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"
+                    >
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  }
+                </div>
+              </div>
+              <p class="text-slate-450 italic line-clamp-2">
+                "{{ fb.comments }}"
+              </p>
+            </div>
+          } @empty {
+            <div class="text-center py-6 text-slate-650 text-xs">
+              No client reviews logged yet.
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

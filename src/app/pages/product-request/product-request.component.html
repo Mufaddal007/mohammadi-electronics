@@ -1,0 +1,208 @@
+<div class="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto font-sans">
+  <!-- Page Header -->
+  <div class="text-center max-w-3xl mx-auto mb-12">
+    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+      Sourcing & <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-teal-400">Special Requests</span>
+    </h1>
+    <p class="text-slate-400 text-lg">
+      Can't find a specific inverter, heavy battery, fan, or stabilizer in the local Partapur market? Fill in the details below, and we will source it directly from our manufacturers.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <!-- Form Card (7 Cols) -->
+    <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl relative">
+      <h2 class="text-xl font-bold text-white mb-6 uppercase tracking-wider font-mono flex items-center gap-2">
+        <span class="p-1.5 bg-teal-500/10 text-teal-400 rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        </span>
+        Product Sourcing Form
+      </h2>
+
+      <!-- Success / Error Alerts -->
+      @if (successMessage()) {
+        <div class="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-2xl flex items-center gap-3 animate-fade-in font-mono">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {{ successMessage() }}
+        </div>
+      }
+      @if (errorMessage()) {
+        <div class="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold rounded-2xl flex items-center gap-3 animate-fade-in font-mono">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <form #requestForm="ngForm" (ngSubmit)="onSubmit(requestForm)" class="space-y-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <!-- Customer Name -->
+          <div>
+            <label for="name" class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Your Name *</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              [(ngModel)]="name"
+              placeholder="e.g. Vikram Joshi"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-teal-500 text-sm font-medium"
+            />
+          </div>
+
+          <!-- Contact Phone -->
+          <div>
+            <label for="phone" class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Phone Number *</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              required
+              [(ngModel)]="phone"
+              placeholder="e.g. +91-9413282752"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-teal-500 text-sm font-mono font-medium"
+            />
+          </div>
+
+          <!-- Requested Product Name -->
+          <div>
+            <label for="productName" class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Product Name/Model *</label>
+            <input
+              type="text"
+              id="productName"
+              name="productName"
+              required
+              [(ngModel)]="productName"
+              placeholder="e.g. Microtek Solar Hybrid 1435"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-teal-500 text-sm font-medium"
+            />
+          </div>
+
+          <!-- Requested Brand -->
+          <div>
+            <label for="brand" class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Brand Preference (Optional)</label>
+            <input
+              type="text"
+              id="brand"
+              name="brand"
+              [(ngModel)]="brand"
+              placeholder="e.g. Microtek, Luminous"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 text-sm font-medium"
+            />
+          </div>
+        </div>
+
+        <!-- Description / Tech Requirements -->
+        <div>
+          <label for="description" class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Description & Requirements *</label>
+          <textarea
+            id="description"
+            name="description"
+            required
+            rows="4"
+            [(ngModel)]="description"
+            placeholder="Please share technical details e.g. capacity in Ah, wattage, dimensions, or specific application type..."
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 text-sm font-medium resize-none"
+          ></textarea>
+        </div>
+
+        <!-- Preferred Contact Method -->
+        <div>
+          <span class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-3">Preferred Contact Method</span>
+          <div class="flex flex-wrap gap-3">
+            @for (method of contactMethods; track method) {
+              <button
+                type="button"
+                (click)="contactMethod = method"
+                [class]="contactMethod === method 
+                  ? 'bg-teal-500 text-slate-950 font-bold border-teal-500' 
+                  : 'bg-slate-950 text-slate-300 hover:text-white border-slate-800'"
+                class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border cursor-pointer transition-colors"
+              >
+                {{ method }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="requestForm.invalid"
+          class="w-full py-3.5 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-[0_0_15px_rgba(20,184,166,0.25)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        >
+          Submit Sourcing Inquiry
+        </button>
+      </form>
+    </div>
+
+    <!-- Info Column (5 Cols) -->
+    <div class="lg:col-span-5 space-y-6">
+      <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+        <!-- Decoration glow -->
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <h3 class="text-sm font-bold text-slate-350 uppercase tracking-widest font-mono mb-6">Our Sourcing Network</h3>
+        
+        <div class="space-y-6 text-sm text-slate-400">
+          <div class="flex items-start gap-4">
+            <div class="p-2 bg-teal-500/10 text-teal-400 rounded-lg shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-white mb-1">Direct Manufacturer Tie-Ups</h4>
+              <p class="text-xs leading-relaxed text-slate-450">
+                We maintain active dealer networks with top-tier brands like Livguard, Microtek, Crompton, and Genus, allowing us to order special capacities directly.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4">
+            <div class="p-2 bg-amber-500/10 text-amber-400 rounded-lg shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-white mb-1">Fast Delivery Times</h4>
+              <p class="text-xs leading-relaxed text-slate-450">
+                Special order items are dispatched quickly and usually arrive at our Bedwa Road store in Partapur within 3 to 5 business days.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4">
+            <div class="p-2 bg-yellow-500/10 text-yellow-400 rounded-lg shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-white mb-1">Full Warranty Protection</h4>
+              <p class="text-xs leading-relaxed text-slate-450">
+                Every custom-ordered device carries the original standard manufacturer warranty, complete with on-site technician visit support in our serviceable villages.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- WhatsApp Quick Link -->
+        <div class="mt-8 pt-6 border-t border-slate-800/80">
+          <a
+            href="https://wa.me/919413282752?text=Hello%20Mohammadi%20Electronics!%20I%20am%20interested%20in%20requesting%20a%20special%20product%20sourcing."
+            target="_blank"
+            class="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-bold rounded-2xl text-xs uppercase tracking-wider transition-all duration-300 shadow-[0_0_15px_rgba(16,185,129,0.2)]"
+          >
+            Ask on WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

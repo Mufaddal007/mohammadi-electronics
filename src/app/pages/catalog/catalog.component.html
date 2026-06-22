@@ -1,0 +1,217 @@
+<div class="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+  <!-- Page Hero Banner -->
+  <div class="text-center max-w-3xl mx-auto mb-16">
+    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+      Explore Premium <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-teal-400">Power Solutions</span>
+    </h1>
+    <p class="text-slate-400 text-lg">
+      Authorized retail & service dealer for top-tier inverters, tubular batteries, energy-efficient fans, and high-performance desert coolers in Partapur.
+    </p>
+  </div>
+
+  <!-- Search & Filters Container -->
+  <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-3xl p-6 md:p-8 mb-12 shadow-2xl shadow-slate-950/50">
+    <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+      <!-- Search Bar -->
+      <div class="relative flex-1 max-w-xl">
+        <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </span>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Search products, brands, or specs (e.g. Livguard, 150Ah)..."
+          class="w-full bg-slate-950/80 border border-slate-800 text-white pl-12 pr-4 py-3.5 rounded-2xl placeholder-slate-500 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500/30 transition-all font-medium text-sm shadow-inner"
+        />
+      </div>
+
+      <!-- Contact Quick Action Row -->
+      <div class="flex flex-wrap items-center gap-4 lg:self-stretch">
+        <!-- Phone quick call box -->
+        <div class="flex items-center gap-3 bg-slate-950/40 border border-slate-800/80 rounded-2xl px-5 py-3 flex-1 min-w-[200px]">
+          <div class="p-2 bg-amber-500/10 text-amber-400 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-xs text-slate-500 font-medium font-mono uppercase tracking-wider">Quick Call Booking</span>
+            <a href="tel:+919413282752" class="text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors">+91-9413282752</a>
+          </div>
+        </div>
+
+        <!-- WhatsApp quick link box -->
+        <a 
+          href="https://wa.me/919413282752?text=Hello%20Mohammadi%20Electronics!%20I%20am%20interested%20in%20your%20products." 
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center gap-3 bg-slate-950/40 hover:bg-emerald-500/5 border border-slate-800/80 hover:border-emerald-500/30 rounded-2xl px-5 py-3 flex-1 min-w-[200px] transition-all group"
+        >
+          <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg group-hover:bg-emerald-500/20 transition-colors">
+            <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.456h.004c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413"/>
+            </svg>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-xs text-slate-500 font-medium font-mono uppercase tracking-wider">WhatsApp Message</span>
+            <span class="text-sm font-bold text-emerald-400 group-hover:text-emerald-300 transition-colors">Chat on WhatsApp</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Category Pills Filter -->
+    <div class="mt-8 border-t border-slate-800/60 pt-6">
+      <span class="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3 font-mono">Filter by Category</span>
+      <div class="flex flex-wrap gap-2.5">
+        @for (cat of categories; track cat) {
+          <button
+            (click)="selectCategory(cat)"
+            [class]="selectedCategory() === cat 
+              ? 'bg-teal-500 text-slate-950 font-bold border-teal-500 shadow-[0_0_15px_rgba(20,184,166,0.35)]' 
+              : 'bg-slate-950 text-slate-300 hover:text-white hover:bg-slate-900 border-slate-800'"
+            class="px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider border transition-all duration-200 cursor-pointer"
+          >
+            {{ cat }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Catalog Inventory Grid -->
+  @if (filteredProducts().length > 0) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      @for (prod of paginatedProducts(); track prod.id) {
+        <div class="group bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-3xl overflow-hidden flex flex-col justify-between hover:border-slate-700/80 transition-all duration-300 hover:shadow-2xl hover:shadow-slate-950/60 hover:-translate-y-1">
+          
+          <!-- Product Image Section -->
+          <div class="relative aspect-video w-full bg-slate-955 overflow-hidden group-hover:brightness-110 transition-all">
+            <img 
+              [src]="prod.imageUrl" 
+              [alt]="prod.name" 
+              class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500"
+              (error)="onImgError($event)"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
+            
+            <!-- Category Badge -->
+            <span class="absolute top-4 left-4 px-3 py-1 text-[10px] font-bold tracking-widest uppercase rounded-full bg-slate-900/80 text-teal-400 border border-slate-700/50 backdrop-blur-md">
+              {{ prod.category }}
+            </span>
+
+            <!-- Stock status badge -->
+            <span 
+              [class]="getStockBadgeClass(prod.stockStatus)"
+              class="absolute top-4 right-4 px-3 py-1 text-[10px] font-bold tracking-widest uppercase rounded-full backdrop-blur-md border"
+            >
+              {{ prod.stockStatus.replace('-', ' ') }}
+            </span>
+          </div>
+
+          <!-- Content Area -->
+          <div class="p-6 flex-1 flex flex-col justify-between">
+            <div>
+              <!-- Brand / Name -->
+              <div class="mb-2">
+                <span class="text-xs font-bold text-amber-500 uppercase tracking-widest font-mono">{{ prod.brand }}</span>
+                <h3 class="text-xl font-bold text-white mt-0.5 group-hover:text-teal-400 transition-colors line-clamp-1">
+                  {{ prod.name }}
+                </h3>
+              </div>
+
+              <!-- Specifications -->
+              <div class="space-y-1.5 my-4">
+                @for (spec of prod.specifications; track spec) {
+                  <div class="flex items-center gap-2 text-xs text-slate-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-teal-500/80 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>{{ spec }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Footer Section (Price & Call Button) -->
+            <div class="border-t border-slate-800/80 pt-5 mt-4 flex items-center justify-between gap-4">
+              <div>
+                <span class="block text-[10px] text-slate-500 font-medium font-mono uppercase tracking-widest">Retail Price</span>
+                <span class="text-2xl font-black text-white font-mono">₹{{ prod.price.toLocaleString('en-IN') }}</span>
+              </div>
+
+              <a 
+                href="tel:+919413282752"
+                class="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-slate-955 font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-[0_0_15px_rgba(20,184,166,0.2)] hover:shadow-[0_0_20px_rgba(20,184,166,0.4)] cursor-pointer"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-955 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                Place Call
+              </a>
+            </div>
+
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Pagination Navigation Controls -->
+    @if (totalPages() > 1) {
+      <div class="flex items-center justify-center gap-2 mt-12 pt-6 border-t border-slate-800/40">
+        <!-- Previous Page Button -->
+        <button
+          (click)="prevPage()"
+          [disabled]="currentPage() === 1"
+          class="p-2.5 bg-slate-950 border border-slate-850 text-slate-400 hover:text-white rounded-xl hover:border-slate-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          title="Previous Page"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <!-- Dynamic Numeric Page Selector -->
+        <div class="flex items-center gap-1.5 font-mono">
+          @for (p of pageNumbers(); track p) {
+            <button
+              (click)="goToPage(p)"
+              [class]="p === currentPage()
+                ? 'bg-teal-500 text-slate-950 font-bold border-teal-500 shadow-[0_0_12px_rgba(20,184,166,0.25)]'
+                : 'bg-slate-950 text-slate-400 border-slate-850 hover:text-white hover:border-slate-700'"
+              class="w-10 h-10 flex items-center justify-center rounded-xl border text-xs font-bold transition-all cursor-pointer"
+            >
+              {{ p }}
+            </button>
+          }
+        </div>
+
+        <!-- Next Page Button -->
+        <button
+          (click)="nextPage()"
+          [disabled]="currentPage() === totalPages()"
+          class="p-2.5 bg-slate-955 border border-slate-850 text-slate-400 hover:text-white rounded-xl hover:border-slate-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          title="Next Page"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    }
+  } @else {
+    <!-- Empty State -->
+    <div class="text-center py-20 bg-slate-900/30 border border-slate-800/80 rounded-3xl">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-slate-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <h3 class="text-xl font-bold text-white mb-2">No Products Found</h3>
+      <p class="text-slate-500 max-w-md mx-auto text-sm">
+        We couldn't find any products matching your query "{{ searchQuery }}". Try adjusting your search term or category filters.
+      </p>
+    </div>
+  }
+</div>

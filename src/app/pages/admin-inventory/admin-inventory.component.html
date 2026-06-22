@@ -1,0 +1,247 @@
+<div class="space-y-8 max-w-7xl mx-auto">
+  
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-black tracking-tight text-white uppercase font-sans">Inventory Stock</h1>
+      <p class="text-xs text-slate-400 font-mono mt-1">MANAGE PRODUCTS, ADJUST PRICES, AND TRACK STOCKS</p>
+    </div>
+    <button
+      (click)="toggleAddForm()"
+      class="px-5 py-2.5 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-[0_0_15px_rgba(20,184,166,0.2)] cursor-pointer"
+    >
+      {{ showForm() ? 'Close Form' : 'Add New Product' }}
+    </button>
+  </div>
+
+  <!-- Add / Edit Form Panel -->
+  @if (showForm()) {
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl animate-fade-in">
+      <h2 class="text-lg font-bold text-white uppercase tracking-wider font-mono mb-6">
+        {{ isEditing() ? 'Edit Product Details' : 'Register New Product' }}
+      </h2>
+
+      <form #productForm="ngForm" (ngSubmit)="onSubmit(productForm)" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- Product Name -->
+          <div class="md:col-span-2">
+            <label for="name" class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Product Name *</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              [(ngModel)]="formData.name"
+              placeholder="e.g. Livguard Super 1100 Inverter"
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-655 focus:outline-none focus:border-teal-500 text-sm font-medium"
+            />
+          </div>
+
+          <!-- Brand -->
+          <div>
+            <label for="brand" class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Brand *</label>
+            <input
+              type="text"
+              id="brand"
+              name="brand"
+              required
+              [(ngModel)]="formData.brand"
+              placeholder="e.g. Livguard"
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-655 focus:outline-none focus:border-teal-500 text-sm font-medium"
+            />
+          </div>
+
+          <!-- Category -->
+          <div>
+            <label for="category" class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Category *</label>
+            <select
+              id="category"
+              name="category"
+              required
+              [(ngModel)]="formData.category"
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-teal-500 text-sm cursor-pointer"
+            >
+              <option value="" disabled>Select category...</option>
+              <option value="Inverters">Inverters</option>
+              <option value="Batteries">Batteries</option>
+              <option value="Coolers">Coolers</option>
+              <option value="Fans">Fans</option>
+              <option value="Stabilizers">Stabilizers</option>
+              <option value="Spares">Spare Parts</option>
+            </select>
+          </div>
+
+          <!-- Price -->
+          <div>
+            <label for="price" class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Retail Price (₹) *</label>
+            <input
+              type="number"
+              id="price"
+              name="price"
+              required
+              min="0"
+              [(ngModel)]="formData.price"
+              placeholder="e.g. 6800"
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-655 focus:outline-none focus:border-teal-500 text-sm font-mono font-medium"
+            />
+          </div>
+
+          <!-- Quantity -->
+          <div>
+            <label for="quantity" class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Stock Quantity *</label>
+            <input
+              type="number"
+              id="quantity"
+              name="quantity"
+              required
+              min="0"
+              [(ngModel)]="formData.quantity"
+              (ngModelChange)="onQtyChange($event)"
+              placeholder="e.g. 10"
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-655 focus:outline-none focus:border-teal-500 text-sm font-mono font-medium"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Specifications (comma separated) -->
+          <div>
+            <label for="specifications" class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">
+              Specifications (comma separated) *
+            </label>
+            <textarea
+              id="specifications"
+              name="specifications"
+              required
+              rows="3"
+              [(ngModel)]="rawSpecs"
+              placeholder="e.g. Capacity: 900 VA, Sine Wave Output, 3 Years Warranty"
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-655 focus:outline-none focus:border-teal-500 text-sm font-medium resize-none"
+            ></textarea>
+          </div>
+
+          <!-- Image URL -->
+          <div>
+            <label for="imageUrl" class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Image URL (Optional)</label>
+            <input
+              type="text"
+              id="imageUrl"
+              name="imageUrl"
+              [(ngModel)]="formData.imageUrl"
+              placeholder="Paste image link, or leave empty for generic graphic placeholder"
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 text-sm"
+            />
+            <span class="text-[10px] text-slate-500 mt-1.5 block">
+              Defaults to a sleek reactive vector energy graphic if left blank.
+            </span>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-end gap-3 border-t border-slate-850 pt-6">
+          <button
+            type="button"
+            (click)="cancelForm()"
+            class="px-5 py-2.5 bg-slate-950 border border-slate-800 hover:border-slate-750 text-slate-400 hover:text-white rounded-xl text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="productForm.invalid"
+            class="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-slate-955 font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-300 disabled:opacity-50"
+          >
+            {{ isEditing() ? 'Update Product' : 'Register Product' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Inventory Table -->
+  <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-lg">
+    <div class="p-6 border-b border-slate-850">
+      <h2 class="text-lg font-bold text-white uppercase tracking-wider font-mono">Current Stock Records</h2>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-sm">
+        <thead>
+          <tr class="border-b border-slate-800 bg-slate-955/20 text-slate-500 text-xs font-mono uppercase tracking-wider">
+            <th class="p-4 font-semibold">Image</th>
+            <th class="p-4 font-semibold">Product Name</th>
+            <th class="p-4 font-semibold">Category</th>
+            <th class="p-4 font-semibold font-mono text-right">Price</th>
+            <th class="p-4 font-semibold font-mono text-center">Qty</th>
+            <th class="p-4 font-semibold text-center">Status</th>
+            <th class="p-4 font-semibold text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-850">
+          @for (prod of products(); track prod.id) {
+            <tr class="hover:bg-slate-950/10 transition-colors">
+              <td class="p-4">
+                <img 
+                  [src]="prod.imageUrl" 
+                  [alt]="prod.name"
+                  class="w-12 h-8 rounded-lg object-cover bg-slate-950 border border-slate-800"
+                  (error)="onImgError($event)"
+                />
+              </td>
+              <td class="p-4">
+                <div class="font-bold text-white">{{ prod.name }}</div>
+                <div class="text-xs text-amber-500 font-bold font-mono">{{ prod.brand }}</div>
+              </td>
+              <td class="p-4 text-slate-350 text-xs font-semibold">
+                {{ prod.category }}
+              </td>
+              <td class="p-4 font-mono font-bold text-white text-right">
+                ₹{{ prod.price.toLocaleString('en-IN') }}
+              </td>
+              <td class="p-4 font-mono font-semibold text-center text-slate-200">
+                {{ prod.quantity }}
+              </td>
+              <td class="p-4 text-center">
+                <span 
+                  [class]="getStockBadgeClass(prod.stockStatus)"
+                  class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border"
+                >
+                  {{ prod.stockStatus.replace('-', ' ') }}
+                </span>
+              </td>
+              <td class="p-4 text-right">
+                <div class="flex justify-end gap-2">
+                  <button
+                    (click)="editProduct(prod)"
+                    class="p-2 bg-slate-955 hover:bg-slate-800 text-teal-400 border border-slate-800 hover:border-teal-500/30 rounded-lg transition-all cursor-pointer"
+                    title="Edit Product"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  </button>
+                  <button
+                    (click)="deleteProduct(prod.id)"
+                    class="p-2 bg-slate-955 hover:bg-rose-955/20 text-rose-500 border border-slate-800 hover:border-rose-500/30 rounded-lg transition-all cursor-pointer"
+                    title="Delete Product"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="text-center p-8 text-slate-500">
+                No products catalogued. Use the form to register new stock items.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

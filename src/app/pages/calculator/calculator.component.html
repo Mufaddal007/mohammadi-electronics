@@ -1,0 +1,293 @@
+<div class="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+  <!-- Page Hero Banner -->
+  <div class="text-center max-w-3xl mx-auto mb-12">
+    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+      Smart Home <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-teal-400">Load Calculator</span>
+    </h1>
+    <p class="text-slate-400 text-lg">
+      Estimate your household power load in real-time. Calculate the ideal inverter system capacity and battery backup sizes tailored for your home.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    
+    <!-- Left Side: Appliance Selection & Quantity Adjustments (8 Cols) -->
+    <div class="lg:col-span-7 space-y-6">
+      <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl">
+        <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-850">
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <span class="p-1.5 bg-teal-500/10 text-teal-400 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+            </span>
+            Household Appliances
+          </h2>
+          <button 
+            (click)="resetCalculator()" 
+            class="text-xs font-semibold text-amber-500 hover:text-amber-400 border border-amber-500/20 hover:border-amber-500/40 rounded-xl px-3 py-1.5 transition-all cursor-pointer font-mono"
+          >
+            RESET ALL
+          </button>
+        </div>
+
+        <!-- Appliance Grid List -->
+        <div class="space-y-4">
+          @for (app of appliances(); track app.id) {
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-slate-950/50 border border-slate-800/80 rounded-2xl hover:border-slate-800 transition-all gap-4">
+              <!-- Name and Wattage -->
+              <div class="flex items-center gap-4">
+                <div class="p-3 bg-slate-900 border border-slate-800 text-teal-400 rounded-xl" [innerHTML]="app.iconSvg">
+                </div>
+                <div>
+                  <h3 class="font-bold text-white text-base">{{ app.name }}</h3>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <span class="text-xs text-slate-500 font-mono">Rating:</span>
+                    <!-- Editable Watts -->
+                    <input 
+                      type="number" 
+                      [(ngModel)]="app.defaultWatts"
+                      class="w-16 bg-slate-900 border border-slate-800 text-teal-300 text-xs font-bold font-mono rounded px-1.5 py-0.5 text-center focus:outline-none focus:border-teal-500"
+                    />
+                    <span class="text-xs text-slate-500 font-mono">Watts</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quantity Controls, Dynamic Subtotal & Delete -->
+              <div class="flex items-center justify-between sm:justify-end gap-6 border-t sm:border-0 border-slate-800/40 pt-3 sm:pt-0">
+                <div class="flex items-center gap-3">
+                  <button 
+                    (click)="decrementQty(app.id)"
+                    class="p-1.5 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4" />
+                    </svg>
+                  </button>
+                  <span class="w-8 text-center text-md font-bold text-white font-mono">{{ app.quantity }}</span>
+                  <button 
+                    (click)="incrementQty(app.id)"
+                    class="p-1.5 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                    </svg>
+                  </button>
+                </div>
+                <!-- Subtotal Watts -->
+                <div class="text-right min-w-[70px]">
+                  <span class="text-sm font-semibold text-slate-500 block font-mono">Subtotal</span>
+                  <span class="font-bold text-white font-mono text-sm">{{ app.defaultWatts * app.quantity }}W</span>
+                </div>
+
+                <!-- Delete button for custom appliances -->
+                @if (app.id.startsWith('custom-')) {
+                  <button 
+                    (click)="removeAppliance(app.id)"
+                    class="p-1.5 bg-slate-900 hover:bg-rose-950/20 text-rose-500 border border-slate-800 hover:border-rose-500/30 rounded-lg transition-colors cursor-pointer"
+                    title="Remove appliance"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Add Custom Appliance Form / Trigger Button -->
+          <div class="mt-6 pt-4 border-t border-slate-850">
+            @if (showCustomForm()) {
+              <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 space-y-4">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest font-mono">Add Custom Appliance</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label class="block text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1.5 font-mono">Appliance Name</label>
+                    <input 
+                      type="text" 
+                      [ngModel]="customName()"
+                      (ngModelChange)="customName.set($event)"
+                      placeholder="e.g. Microwave Oven"
+                      class="w-full bg-slate-900 border border-slate-800 text-white placeholder-slate-600 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-teal-500 font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1.5 font-mono">Power Rating (Watts)</label>
+                    <input 
+                      type="number" 
+                      [ngModel]="customWatts()"
+                      (ngModelChange)="customWatts.set($event)"
+                      placeholder="e.g. 800"
+                      class="w-full bg-slate-900 border border-slate-800 text-white placeholder-slate-600 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-teal-500 font-mono font-medium"
+                    />
+                  </div>
+                  <div class="flex items-end gap-2">
+                    <button 
+                      type="button"
+                      (click)="addCustomAppliance()"
+                      [disabled]="!customName().trim() || customWatts() <= 0"
+                      class="flex-1 py-2.5 bg-teal-500 hover:bg-teal-400 disabled:opacity-50 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-205 cursor-pointer"
+                    >
+                      Add Appliance
+                    </button>
+                    <button 
+                      type="button"
+                      (click)="showCustomForm.set(false)"
+                      class="py-2.5 px-3 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl text-xs font-semibold transition-all cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <button 
+                type="button"
+                (click)="showCustomForm.set(true)"
+                class="w-full flex items-center justify-center gap-2 py-3 bg-slate-950/40 hover:bg-slate-950/80 border border-dashed border-slate-800 hover:border-slate-700 text-slate-400 hover:text-white font-semibold rounded-2xl text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer"
+              >
+                <svg xmlns="http://www.w3.org/2500/svg" class="h-4.5 w-4.5 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                </svg>
+                Add Custom Appliance
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side: Calculations, Backup Setting & Suggestions (5 Cols) -->
+    <div class="lg:col-span-5 space-y-6">
+      
+      <!-- Summary Card -->
+      <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+        <!-- Glow background decorative element -->
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <h2 class="text-lg font-bold text-slate-350 uppercase tracking-widest font-mono mb-6">Load Summary</h2>
+        
+        <div class="text-center py-6 border-b border-slate-850">
+          <span class="block text-xs font-semibold text-slate-500 uppercase tracking-wider font-mono">Total Estimated Load</span>
+          <span class="text-5xl font-black text-white font-mono tracking-tight my-2 block">
+            {{ totalWatts() }} <span class="text-2xl text-teal-400 font-sans">W</span>
+          </span>
+          <p class="text-xs text-slate-400 max-w-xs mx-auto">
+            Assumes all selected devices are running simultaneously at maximum capacity.
+          </p>
+        </div>
+
+        <!-- Backup Hours Slider -->
+        <div class="py-6 border-b border-slate-850">
+          <div class="flex items-center justify-between mb-3">
+            <label class="text-sm font-bold text-slate-300">Required Backup Duration</label>
+            <span class="text-sm font-bold text-amber-400 font-mono">{{ backupHours() }} Hours</span>
+          </div>
+          <input
+            type="range"
+            min="1"
+            max="10"
+            step="1"
+            [(ngModel)]="backupHours"
+            class="w-full accent-amber-500 h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer"
+          />
+          <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-1">
+            <span>1 Hr</span>
+            <span>5 Hrs</span>
+            <span>10 Hrs</span>
+          </div>
+        </div>
+
+        <!-- Recommended Solutions -->
+        <div class="pt-6 space-y-5">
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-3">Recommended System</h3>
+          
+          <!-- Inverter Recommendation -->
+          <div class="flex items-start gap-4 p-4 bg-slate-950/60 border border-slate-850 rounded-2xl">
+            <div class="p-2.5 bg-teal-500/10 text-teal-400 rounded-xl shrink-0 mt-0.5">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div>
+              <span class="block text-xs font-semibold text-slate-500 uppercase tracking-wider font-mono">Inverter Capacity</span>
+              <span class="text-lg font-bold text-white font-mono">{{ recInverterVA() }} VA</span>
+              <span class="block text-xs text-slate-400 mt-0.5">
+                Recommended Model: **{{ recInverterModel() }}** (Includes 25% safety buffer).
+              </span>
+            </div>
+          </div>
+
+          <!-- Battery Recommendation -->
+          <div class="flex items-start gap-4 p-4 bg-slate-950/60 border border-slate-850 rounded-2xl">
+            <div class="p-2.5 bg-amber-500/10 text-amber-400 rounded-xl shrink-0 mt-0.5">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 9.172V5L8 4z" />
+              </svg>
+            </div>
+            <div>
+              <span class="block text-xs font-semibold text-slate-500 uppercase tracking-wider font-mono">Battery Configuration</span>
+              <span class="text-lg font-bold text-white font-mono">{{ recBatteryAh() }}</span>
+              <span class="block text-xs text-slate-400 mt-0.5">
+                Required Total Backup: **{{ recBatteryWattsTotal() }} Wh**. Recommended: **{{ recBatteryDesc() }}**.
+              </span>
+            </div>
+          </div>
+
+          <!-- Solar System Recommendations -->
+          @if (totalWatts() > 0) {
+            <div class="flex flex-col gap-3 p-4 bg-slate-950/60 border border-slate-850 rounded-2xl animate-fade-in">
+              <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-yellow-500/10 text-yellow-400 rounded-xl shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                  </svg>
+                </div>
+                <div>
+                  <span class="block text-xs font-semibold text-slate-500 uppercase tracking-wider font-mono">Solar Solutions</span>
+                  <span class="text-sm font-bold text-white uppercase tracking-wider font-sans">Recommended Solar System</span>
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-800/40">
+                <!-- On-Grid Solar Recommendation -->
+                <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-1">
+                  <span class="block text-[9px] text-teal-400 font-bold uppercase tracking-wider font-mono">ON-GRID SYSTEM</span>
+                  <span class="text-lg font-black text-white font-mono">{{ recOnGridSolarkW() }} kW</span>
+                  <p class="text-[10px] text-slate-550 leading-normal">
+                    Grid-Tie solar inverter with net-metering. No batteries required. Reduces utility bills directly.
+                  </p>
+                </div>
+
+                <!-- Off-Grid Solar Recommendation -->
+                <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-1">
+                  <span class="block text-[9px] text-amber-500 font-bold uppercase tracking-wider font-mono">OFF-GRID SYSTEM</span>
+                  <span class="text-lg font-black text-white font-mono">{{ recOffGridSolarkW() }} kW</span>
+                  <p class="text-[10px] text-slate-555 leading-normal">
+                    MPPT hybrid solar inverter. Charges battery bank and powers selected loads during outages.
+                  </p>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Store CTA -->
+          <div class="pt-4">
+            <a
+              href="tel:+919413282752"
+              class="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-2xl text-sm uppercase tracking-wider transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_25px_rgba(245,158,11,0.4)]"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-950 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+              Consult on Phone
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
