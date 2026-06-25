@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MockDataService } from '../../services/mock-data.service';
+import { SourcingService } from '../../services/sourcing.service';
 
 @Component({
   selector: 'app-product-request',
@@ -11,7 +11,7 @@ import { MockDataService } from '../../services/mock-data.service';
   styleUrl: './product-request.component.css'
 })
 export class ProductRequestComponent {
-  private dataService = inject(MockDataService);
+  private sourcingService = inject(SourcingService);
 
   // Form Fields
   name = '';
@@ -30,20 +30,24 @@ export class ProductRequestComponent {
     this.errorMessage.set('');
 
     if (form.valid) {
-      this.dataService.addProductRequest({
-        name: this.name.trim(),
-        phone: this.phone.trim(),
-        productName: this.productName.trim(),
-        brand: this.brand.trim(),
-        description: this.description.trim(),
-        contactMethod: this.contactMethod
-      });
+      const contactInfo = `${this.phone.trim()} (${this.contactMethod})`;
+      const requestedItem = (this.brand.trim() ? `${this.brand.trim()} ` : '') + this.productName.trim();
 
-      this.successMessage.set('Sourcing request logged successfully! Our team will contact you shortly.');
-      
-      // Reset Form
-      form.resetForm();
-      this.contactMethod = 'Call';
+      this.sourcingService.submitDemand({
+        customer_name: this.name.trim(),
+        contact_info: contactInfo,
+        requested_item_name: requestedItem,
+        specifications: this.description.trim()
+      }).subscribe({
+        next: () => {
+          this.successMessage.set('Sourcing request logged successfully! Our team will contact you shortly.');
+          form.resetForm();
+          this.contactMethod = 'Call';
+        },
+        error: (err) => {
+          this.errorMessage.set('Failed to submit request: ' + err.message);
+        }
+      });
     } else {
       this.errorMessage.set('Please fill out all required fields correctly.');
     }

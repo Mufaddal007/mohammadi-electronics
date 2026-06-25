@@ -24,3 +24,26 @@
     <app-footer></app-footer>
   }
 </div>
+
+<!-- Fullscreen API Blocker Loader Overlay -->
+@if (isLoading()) {
+  <div class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-950/85 backdrop-blur-sm select-none cursor-wait">
+    <div class="relative flex items-center justify-center w-24 h-24 mb-4">
+      <!-- Outer spinning glow rings -->
+      <div class="absolute inset-0 rounded-full border-4 border-slate-800/80 border-t-teal-500 animate-spin"></div>
+      <div class="absolute inset-2.5 rounded-full border-2 border-transparent border-b-cyan-400 animate-spin" style="animation-direction: reverse; animation-duration: 1.5s;"></div>
+      
+      <!-- Center Lightning Bolt (Electric theme) -->
+      <div class="relative z-10 text-teal-400 animate-pulse">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-8 h-8 filter drop-shadow-[0_0_8px_rgba(20,184,166,0.8)]" viewBox="0 0 16 16">
+          <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
+        </svg>
+      </div>
+    </div>
+    
+    <!-- Text feedback -->
+    <p class="text-xs font-semibold tracking-widest text-teal-400 uppercase animate-pulse">
+      Connecting to Power Grid...
+    </p>
+  </div>
+}

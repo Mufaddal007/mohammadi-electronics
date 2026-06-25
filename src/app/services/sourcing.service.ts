@@ -2,29 +2,23 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { ProductCatalogItem, ProductSaveRequest } from '../models/product.model';
+import { DemandSubmitPayload, DemandResponseItem } from '../models/demand.model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ProductService {
+export class SourcingService {
   public domain: string = 'https://mohammadielectronics.com';
   private http = inject(HttpClient);
 
-  getProducts(): Observable<ProductCatalogItem[]> {
-    return this.http.get<ProductCatalogItem[]>(this.domain + '/api/products').pipe(
+  submitDemand(payload: DemandSubmitPayload): Observable<any> {
+    return this.http.post<any>(this.domain + '/api/product-demands', payload).pipe(
       catchError(this.handleError)
     );
   }
 
-  saveOrUpdateProduct(payload: ProductSaveRequest): Observable<any> {
-    return this.http.post<any>(this.domain + '/api/admin/products', payload).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  deleteProduct(productId: number): Observable<any> {
-    return this.http.delete<any>(`${this.domain}/api/admin/products/${productId}`).pipe(
+  getDemands(): Observable<DemandResponseItem[]> {
+    return this.http.get<DemandResponseItem[]>(this.domain + '/api/admin/product-demands').pipe(
       catchError(this.handleError)
     );
   }

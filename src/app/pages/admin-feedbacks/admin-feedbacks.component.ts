@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MockDataService, Feedback } from '../../services/mock-data.service';
+import { FeedbackService } from '../../services/feedback.service';
+import { Feedback } from '../../services/mock-data.service';
 
 @Component({
   selector: 'app-admin-feedbacks',
@@ -10,14 +11,38 @@ import { MockDataService, Feedback } from '../../services/mock-data.service';
   styleUrl: './admin-feedbacks.component.css'
 })
 export class AdminFeedbacksComponent implements OnInit {
-  private dataService = inject(MockDataService);
+  private feedbackService = inject(FeedbackService);
   protected Math = Math; // expose Math to template for rounding
 
   feedbacks = signal<Feedback[]>([]);
 
   ngOnInit() {
-    this.dataService.getFeedbacks().subscribe(list => {
-      this.feedbacks.set(list);
+    this.feedbackService.getFeedbacks().subscribe({
+      next: (apiFeedbacks) => {
+        const mapped: Feedback[] = apiFeedbacks.map(fb => {
+          let rating = 5;
+          let comments = fb.message;
+          
+          // Check for custom rating prefix: "[Rating: N Stars] "
+          const match = fb.message.match(/^\[Rating:\s*(\d)\s*Stars\]\s*(.*)$/s);
+          if (match) {
+            rating = parseInt(match[1], 10);
+            comments = match[2];
+          }
+          
+          return {
+            id: String(fb.id),
+            name: fb.name || 'Anonymous Customer',
+            rating: rating,
+            comments: comments,
+            date: fb.created_at || new Date().toISOString()
+          };
+        });
+        this.feedbacks.set(mapped);
+      },
+      error: (err) => {
+        console.error('Error loading feedbacks from backend API', err);
+      }
     });
   }
 

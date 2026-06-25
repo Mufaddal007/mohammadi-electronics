@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MockDataService } from '../../services/mock-data.service';
+import { ServiceRequestService } from '../../services/service-request.service';
 
 @Component({
   selector: 'app-enquiry',
@@ -11,7 +11,7 @@ import { MockDataService } from '../../services/mock-data.service';
   styleUrl: './enquiry.component.css'
 })
 export class EnquiryComponent {
-  private dataService = inject(MockDataService);
+  private serviceRequestService = inject(ServiceRequestService);
 
   isSubmitted = signal(false);
   submittedName = '';
@@ -27,19 +27,23 @@ export class EnquiryComponent {
 
   onSubmit(form: any) {
     if (form.valid) {
-      this.submittedName = this.formData.name;
+      this.submittedName = this.formData.name.trim();
       this.submittedAppliance = this.formData.applianceType;
-      this.lastGeneratedId = Date.now().toString().slice(-6);
 
-      // Save to global shared state service
-      this.dataService.addEnquiry({
-        name: this.formData.name,
-        phone: this.formData.phone,
-        applianceType: this.formData.applianceType,
-        issueDescription: this.formData.issueDescription
+      this.serviceRequestService.raiseTicket({
+        customer_name: this.formData.name.trim(),
+        phone: this.formData.phone.trim(),
+        appliance_type: this.formData.applianceType,
+        issue_description: this.formData.issueDescription.trim()
+      }).subscribe({
+        next: (res) => {
+          this.lastGeneratedId = res?.id ? String(res.id) : Date.now().toString().slice(-6);
+          this.isSubmitted.set(true);
+        },
+        error: (err) => {
+          alert('Failed to submit service request: ' + err.message);
+        }
       });
-
-      this.isSubmitted.set(true);
     }
   }
 

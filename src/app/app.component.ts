@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { AdminSidebarComponent } from './components/admin-sidebar/admin-sidebar.component';
+import { LoadingService } from './services/loading.service';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -21,7 +22,10 @@ import { filter } from 'rxjs/operators';
 })
 export class App {
   private router = inject(Router);
+  private loadingService = inject(LoadingService);
+
   isAdminMode = signal(false);
+  isLoading = this.loadingService.isLoading;
 
   constructor() {
     this.router.events.pipe(

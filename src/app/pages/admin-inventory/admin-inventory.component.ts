@@ -161,6 +161,7 @@ export class AdminInventoryComponent implements OnInit {
     }
   }
 
+
   editProduct(prod: Product) {
     this.isEditing.set(true);
     this.editingId = prod.id;
@@ -181,8 +182,14 @@ export class AdminInventoryComponent implements OnInit {
 
   deleteProduct(id: string) {
     if (confirm('Are you sure you want to delete this product from the inventory?')) {
-      this.dataService.deleteProduct(id);
-      this.products.update(list => list.filter(p => p.id !== id));
+      this.productService.deleteProduct(Number(id)).subscribe({
+        next: () => {
+          this.loadProducts();
+        },
+        error: (err) => {
+          alert('Failed to delete product: ' + err.message);
+        }
+      });
     }
   }
 

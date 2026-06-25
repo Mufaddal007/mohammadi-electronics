@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MockDataService } from '../../services/mock-data.service';
+import { FeedbackService } from '../../services/feedback.service';
 
 @Component({
   selector: 'app-feedback',
@@ -11,7 +11,7 @@ import { MockDataService } from '../../services/mock-data.service';
   styleUrl: './feedback.component.css'
 })
 export class FeedbackComponent {
-  private dataService = inject(MockDataService);
+  private feedbackService = inject(FeedbackService);
 
   isSubmitted = signal(false);
   rating = signal<number>(0);
@@ -20,6 +20,7 @@ export class FeedbackComponent {
 
   formData = {
     name: '',
+    email: '',
     comments: ''
   };
 
@@ -39,20 +40,27 @@ export class FeedbackComponent {
     if (form.valid && this.rating() !== 0) {
       this.submittedName = this.formData.name.trim();
 
-      // Submit feedback to core reactive store
-      this.dataService.addFeedback({
-        name: this.submittedName || 'Anonymous Customer',
-        rating: this.rating(),
-        comments: this.formData.comments
-      });
+      const message = `[Rating: ${this.rating()} Stars] ${this.formData.comments.trim()}`;
 
-      this.isSubmitted.set(true);
+      this.feedbackService.submitFeedback({
+        name: this.submittedName || 'Anonymous Customer',
+        email: this.formData.email.trim(),
+        message: message
+      }).subscribe({
+        next: () => {
+          this.isSubmitted.set(true);
+        },
+        error: (err) => {
+          alert('Failed to submit feedback: ' + err.message);
+        }
+      });
     }
   }
 
   resetForm() {
     this.formData = {
       name: '',
+      email: '',
       comments: ''
     };
     this.rating.set(0);
