@@ -2,7 +2,7 @@ import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MockDataService } from '../../services/mock-data.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-auth',
@@ -12,7 +12,7 @@ import { MockDataService } from '../../services/mock-data.service';
   styleUrl: './auth.component.css'
 })
 export class AuthComponent {
-  private dataService = inject(MockDataService);
+  private authService = inject(AuthService);
   private router = inject(Router);
 
   isSignUp = signal(false);
@@ -64,39 +64,54 @@ export class AuthComponent {
     this.errorMessage.set('');
     this.successMessage.set('');
 
-    const res = this.dataService.signIn(this.signInEmail, this.signInPassword());
-    if (res.success) {
-      this.successMessage.set(res.message);
-      const user = this.dataService.currentUserValue();
-      setTimeout(() => {
-        if (user && user.role === 'admin') {
-          this.router.navigate(['/admin/dashboard']);
-        } else {
-          this.router.navigate(['/']);
-        }
-      }, 1000);
-    } else {
-      this.errorMessage.set(res.message);
-    }
+    this.authService.login(this.signInEmail, this.signInPassword()).subscribe({
+      next: () => {
+        this.successMessage.set('Logged in successfully!');
+        setTimeout(() => {
+          if (this.authService.isAdmin()) {
+            this.router.navigate(['/admin/dashboard']);
+          } else {
+            this.router.navigate(['/']);
+          }
+        }, 1000);
+      },
+      error: (err) => {
+        this.errorMessage.set(err.message || 'Incorrect username or password');
+      }
+    });
   }
 
   onSignUp() {
     this.errorMessage.set('');
     this.successMessage.set('');
 
-    if (!this.signUpName.trim()) {
-      this.errorMessage.set('Name is required.');
+    if (!this.signUpEmail.trim()) {
+      this.errorMessage.set('Username/Email is required.');
       return;
     }
 
-    const res = this.dataService.signUp(this.signUpEmail, this.signUpPassword(), this.signUpName);
-    if (res.success) {
-      this.successMessage.set(res.message);
-      setTimeout(() => {
-        this.router.navigate(['/']);
-      }, 1200);
-    } else {
-      this.errorMessage.set(res.message);
-    }
+    this.authService.signUp({
+      username: this.signUpEmail.trim(),
+      password: this.signUpPassword()
+    }).subscribe({
+      next: () => {
+        this.successMessage.set('User registered successfully! Logging you in...');
+        
+        // Auto-login on success
+        this.authService.login(this.signUpEmail, this.signUpPassword()).subscribe({
+          next: () => {
+            setTimeout(() => {
+              this.router.navigate(['/']);
+            }, 1200);
+          },
+          error: (err) => {
+            this.errorMessage.set('Account registered, but login failed: ' + err.message);
+          }
+        });
+      },
+      error: (err) => {
+        this.errorMessage.set(err.message || 'Registration failed.');
+      }
+    });
   }
 }

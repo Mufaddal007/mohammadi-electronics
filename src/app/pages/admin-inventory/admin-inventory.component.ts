@@ -2,6 +2,19 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MockDataService, Product } from '../../services/mock-data.service';
+import { ProductService } from '../../services/product.service';
+import { ProductSaveRequest, ProductCatalogItem, ProductSpec } from '../../models/product.model';
+
+function getCategoryId(category: string): number {
+  switch (category.toLowerCase()) {
+    case 'inverters': return 1;
+    case 'batteries': return 2;
+    case 'coolers': return 3;
+    case 'fans': return 4;
+    case 'stabilizers': return 5;
+    default: return 1;
+  }
+}
 
 @Component({
   selector: 'app-admin-inventory',
@@ -12,6 +25,7 @@ import { MockDataService, Product } from '../../services/mock-data.service';
 })
 export class AdminInventoryComponent implements OnInit {
   private dataService = inject(MockDataService);
+  private productService = inject(ProductService);
 
   products = signal<Product[]>([]);
   showForm = signal(false);
@@ -30,8 +44,42 @@ export class AdminInventoryComponent implements OnInit {
   };
 
   ngOnInit() {
-    this.dataService.getProducts().subscribe(prods => {
-      this.products.set(prods);
+    this.loadProducts();
+  }
+
+  loadProducts() {
+    this.productService.getProducts().subscribe({
+      next: (apiProducts) => {
+        const mapped: Product[] = apiProducts.map(p => {
+          const brandSpec = p.specs?.find(s => s.spec_key.toLowerCase() === 'brand');
+          const brand = brandSpec ? brandSpec.spec_value : (p.name.split(' ')[0] || 'Generic');
+          
+          const specifications = p.specs?.map(s => `${s.spec_key}: ${s.spec_value}`) || [];
+          
+          let stockStatus: 'in-stock' | 'low-stock' | 'out-of-stock' = 'in-stock';
+          if (p.stock_qty <= 0) {
+            stockStatus = 'out-of-stock';
+          } else if (p.stock_qty <= p.low_stock_threshold) {
+            stockStatus = 'low-stock';
+          }
+
+          return {
+            id: String(p.id),
+            name: p.name,
+            brand: brand,
+            category: p.category_name,
+            price: p.price,
+            specifications: specifications,
+            stockStatus: stockStatus,
+            quantity: p.stock_qty,
+            imageUrl: p.image_url
+          };
+        });
+        this.products.set(mapped);
+      },
+      error: (err) => {
+        console.error('Error loading products from REST API', err);
+      }
     });
   }
 
@@ -60,27 +108,56 @@ export class AdminInventoryComponent implements OnInit {
         .map(item => item.trim())
         .filter(item => item.length > 0);
 
-      const finalProductData = {
-        name: this.formData.name,
-        brand: this.formData.brand,
-        category: this.formData.category,
-        price: this.formData.price,
-        quantity: this.formData.quantity,
-        stockStatus: this.formData.stockStatus,
-        specifications: specsArray,
-        imageUrl: this.formData.imageUrl.trim() || 'https://images.unsplash.com/photo-1620288627223-53302f4e8c74?w=500&auto=format&fit=crop&q=60'
-      };
+      const specsObjArray: ProductSpec[] = specsArray.map(spec => {
+        const colonIndex = spec.indexOf(':');
+        if (colonIndex > -1) {
+          return {
+            spec_key: spec.substring(0, colonIndex).trim(),
+            spec_value: spec.substring(colonIndex + 1).trim()
+          };
+        } else {
+          return {
+            spec_key: 'Feature',
+            spec_value: spec
+          };
+        }
+      });
 
-      if (this.isEditing() && this.editingId) {
-        this.dataService.updateProduct({
-          ...finalProductData,
-          id: this.editingId
+      // Add default specs if brand is not in spec list
+      const brandSpecIndex = specsObjArray.findIndex(s => s.spec_key.toLowerCase() === 'brand');
+      if (brandSpecIndex === -1 && this.formData.brand) {
+        specsObjArray.push({
+          spec_key: 'Brand',
+          spec_value: this.formData.brand.trim()
         });
-      } else {
-        this.dataService.addProduct(finalProductData);
+      } else if (brandSpecIndex > -1 && this.formData.brand) {
+        specsObjArray[brandSpecIndex].spec_value = this.formData.brand.trim();
       }
 
-      this.cancelForm();
+      const slug = this.formData.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+      const payload: ProductSaveRequest = {
+        id: this.isEditing() && this.editingId ? Number(this.editingId) : null,
+        category_id: getCategoryId(this.formData.category),
+        name: this.formData.name.trim(),
+        slug: slug,
+        description: this.formData.name.trim(),
+        price: this.formData.price,
+        image_url: this.formData.imageUrl.trim() || 'https://images.unsplash.com/photo-1620288627223-53302f4e8c74?w=500&auto=format&fit=crop&q=60',
+        stock_qty: this.formData.quantity,
+        low_stock_threshold: 3,
+        specs: specsObjArray
+      };
+
+      this.productService.saveOrUpdateProduct(payload).subscribe({
+        next: () => {
+          this.loadProducts();
+          this.cancelForm();
+        },
+        error: (err) => {
+          alert('Failed to save product: ' + err.message);
+        }
+      });
     }
   }
 
@@ -105,6 +182,7 @@ export class AdminInventoryComponent implements OnInit {
   deleteProduct(id: string) {
     if (confirm('Are you sure you want to delete this product from the inventory?')) {
       this.dataService.deleteProduct(id);
+      this.products.update(list => list.filter(p => p.id !== id));
     }
   }
 

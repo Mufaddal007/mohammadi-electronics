@@ -1,7 +1,20 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MockDataService, Product } from '../../services/mock-data.service';
+import { ProductService } from '../../services/product.service';
+import { ProductCatalogItem } from '../../models/product.model';
+
+export interface Product {
+  id: string;
+  name: string;
+  brand: string;
+  category: string;
+  price: number;
+  specifications: string[];
+  stockStatus: 'in-stock' | 'low-stock' | 'out-of-stock';
+  quantity: number;
+  imageUrl: string;
+}
 
 @Component({
   selector: 'app-catalog',
@@ -11,7 +24,7 @@ import { MockDataService, Product } from '../../services/mock-data.service';
   styleUrl: './catalog.component.css'
 })
 export class CatalogComponent implements OnInit {
-  private dataService = inject(MockDataService);
+  private productService = inject(ProductService);
 
   products = signal<Product[]>([]);
   searchQuery = '';
@@ -23,8 +36,38 @@ export class CatalogComponent implements OnInit {
   pageSize = signal<number>(6);
 
   ngOnInit() {
-    this.dataService.getProducts().subscribe(prods => {
-      this.products.set(prods);
+    this.productService.getProducts().subscribe({
+      next: (apiProducts) => {
+        const mapped: Product[] = apiProducts.map(p => {
+          const brandSpec = p.specs?.find(s => s.spec_key.toLowerCase() === 'brand');
+          const brand = brandSpec ? brandSpec.spec_value : (p.name.split(' ')[0] || 'Generic');
+          
+          const specifications = p.specs?.map(s => `${s.spec_key}: ${s.spec_value}`) || [];
+          
+          let stockStatus: 'in-stock' | 'low-stock' | 'out-of-stock' = 'in-stock';
+          if (p.stock_qty <= 0) {
+            stockStatus = 'out-of-stock';
+          } else if (p.stock_qty <= p.low_stock_threshold) {
+            stockStatus = 'low-stock';
+          }
+
+          return {
+            id: String(p.id),
+            name: p.name,
+            brand: brand,
+            category: p.category_name,
+            price: p.price,
+            specifications: specifications,
+            stockStatus: stockStatus,
+            quantity: p.stock_qty,
+            imageUrl: p.image_url
+          };
+        });
+        this.products.set(mapped);
+      },
+      error: (err) => {
+        console.error('Error loading products from backend API', err);
+      }
     });
   }
 

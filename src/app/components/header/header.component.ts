@@ -1,7 +1,7 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, computed } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { MockDataService } from '../../services/mock-data.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -11,11 +11,15 @@ import { MockDataService } from '../../services/mock-data.service';
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
-  private dataService = inject(MockDataService);
+  private authService = inject(AuthService);
   private router = inject(Router);
 
   isMenuOpen = signal(false);
-  currentUser = this.dataService.currentUser;
+  currentUser = computed(() => {
+    const name = this.authService.currentUserUsername();
+    const role = this.authService.currentUserRole();
+    return name ? { name, role } : null;
+  });
 
   navItems = [
     { label: 'Products', path: '/', exact: true },
@@ -36,7 +40,7 @@ export class HeaderComponent {
   }
 
   logout() {
-    this.dataService.signOut();
+    this.authService.signOut();
     this.closeMenu();
     this.router.navigate(['/']);
   }

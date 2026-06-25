@@ -1,17 +1,5 @@
-import { Routes, Router } from '@angular/router';
-import { inject } from '@angular/core';
-import { MockDataService } from './services/mock-data.service';
-
-const adminGuard = () => {
-  const auth = inject(MockDataService);
-  const router = inject(Router);
-  const user = auth.currentUserValue();
-  if (user && user.role === 'admin') {
-    return true;
-  }
-  router.navigate(['/login']);
-  return false;
-};
+import { Routes } from '@angular/router';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   // Customer facing pages
@@ -84,6 +72,12 @@ export const routes: Routes = [
     path: 'admin/feedbacks',
     loadComponent: () => import('./pages/admin-feedbacks/admin-feedbacks.component').then(m => m.AdminFeedbacksComponent),
     title: 'Admin - Feedback Logs',
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'admin/users',
+    loadComponent: () => import('./pages/admin-users/admin-users.component').then(m => m.AdminUsersComponent),
+    title: 'Admin - Registered Users',
     canActivate: [adminGuard]
   },
 

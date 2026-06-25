@@ -412,6 +412,26 @@ export class MockDataService {
     this.setLocalStorage('currentUser', null);
   }
 
+  // --- Users State Management ---
+  getUsersList(): User[] {
+    return this.users();
+  }
+
+  deleteUser(email: string): { success: boolean; message: string } {
+    const targetEmail = email.toLowerCase().trim();
+    if (targetEmail === 'admin@mohammadi.com') {
+      return { success: false, message: 'Cannot delete the primary admin account.' };
+    }
+    const current = this.currentUser();
+    if (current && current.email.toLowerCase() === targetEmail) {
+      return { success: false, message: 'Cannot delete your own active administrator account.' };
+    }
+    
+    this.users.update(list => list.filter(u => u.email.toLowerCase() !== targetEmail));
+    this.setLocalStorage('users', this.users());
+    return { success: true, message: 'User deleted successfully.' };
+  }
+
   // --- Product Requests State Management ---
   getProductRequests(): Observable<ProductRequest[]> {
     return this.productRequestsSubject.asObservable();

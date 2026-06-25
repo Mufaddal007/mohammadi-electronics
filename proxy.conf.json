@@ -1,0 +1,8 @@
+{
+    "/api": {
+        "target": "https://mohammadielectronics.com",
+        "secure": true,
+        "changeOrigin": true,
+        "logLevel": "debug"
+    }
+}
