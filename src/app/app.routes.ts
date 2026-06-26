@@ -14,6 +14,11 @@ export const routes: Routes = [
     title: 'Raise Service Request | Enquiry'
   },
   {
+    path: 'service-requests',
+    redirectTo: 'enquiry',
+    pathMatch: 'full'
+  },
+  {
     path: 'feedback',
     loadComponent: () => import('./pages/feedback/feedback.component').then(m => m.FeedbackComponent),
     title: 'Share Feedback'
@@ -37,6 +42,11 @@ export const routes: Routes = [
     path: 'product-request',
     loadComponent: () => import('./pages/product-request/product-request.component').then(m => m.ProductRequestComponent),
     title: 'Request Sourcing | Special Order'
+  },
+  {
+    path: 'product-demands',
+    redirectTo: 'product-request',
+    pathMatch: 'full'
   },
   {
     path: 'login',

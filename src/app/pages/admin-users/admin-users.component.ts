@@ -1,7 +1,8 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MockDataService, User } from '../../services/mock-data.service';
+import { UserService } from '../../services/user.service';
+import { RegisteredUser } from '../../models/auth.model';
 
 @Component({
   selector: 'app-admin-users',
@@ -11,9 +12,9 @@ import { MockDataService, User } from '../../services/mock-data.service';
   styleUrl: './admin-users.component.css'
 })
 export class AdminUsersComponent implements OnInit {
-  private dataService = inject(MockDataService);
+  private userService = inject(UserService);
 
-  usersList = signal<User[]>([]);
+  usersList = signal<RegisteredUser[]>([]);
   searchQuery = signal<string>('');
   
   successMessage = signal<string>('');
@@ -24,7 +25,14 @@ export class AdminUsersComponent implements OnInit {
   }
 
   loadUsers() {
-    this.usersList.set(this.dataService.getUsersList());
+    this.userService.getRegisteredUsers().subscribe({
+      next: (users) => {
+        this.usersList.set(users);
+      },
+      error: (err) => {
+        this.errorMessage.set(err.message || 'Failed to load registered users');
+      }
+    });
   }
 
   // Reactive computed search filtering
@@ -34,23 +42,7 @@ export class AdminUsersComponent implements OnInit {
     if (!query) return list;
 
     return list.filter(u => 
-      u.name.toLowerCase().includes(query) || 
-      u.email.toLowerCase().includes(query)
+      u.username.toLowerCase().includes(query)
     );
   });
-
-  onDeleteUser(email: string) {
-    this.successMessage.set('');
-    this.errorMessage.set('');
-
-    if (confirm(`Are you sure you want to delete user ${email}?`)) {
-      const res = this.dataService.deleteUser(email);
-      if (res.success) {
-        this.successMessage.set(res.message);
-        this.loadUsers();
-      } else {
-        this.errorMessage.set(res.message);
-      }
-    }
-  }
 }

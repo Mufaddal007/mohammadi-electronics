@@ -40,7 +40,7 @@
           type="text"
           [ngModel]="searchQuery()"
           (ngModelChange)="searchQuery.set($event)"
-          placeholder="Search by name or email..."
+          placeholder="Search by username..."
           class="w-full bg-slate-950 border border-slate-850 hover:border-slate-800 text-white placeholder-slate-600 text-xs rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-teal-500 font-medium transition-colors"
         />
       </div>
@@ -53,23 +53,23 @@
       <table class="w-full text-left border-collapse text-sm">
         <thead>
           <tr class="border-b border-slate-800 bg-slate-955/20 text-slate-500 text-xs font-mono uppercase tracking-wider">
-            <th class="p-4 font-semibold">User Name</th>
-            <th class="p-4 font-semibold">Email Address</th>
+            <th class="p-4 font-semibold">User ID</th>
+            <th class="p-4 font-semibold">Username</th>
             <th class="p-4 font-semibold text-center">System Role</th>
-            <th class="p-4 font-semibold text-right">Actions</th>
+            <th class="p-4 font-semibold text-right">Status</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-850">
-          @for (user of filteredUsers(); track user.email) {
+          @for (user of filteredUsers(); track user.id) {
             <tr class="hover:bg-slate-950/15 transition-colors">
-              <!-- Name -->
-              <td class="p-4">
-                <div class="font-bold text-white leading-snug">{{ user.name }}</div>
+              <!-- ID -->
+              <td class="p-4 font-mono text-xs text-slate-400">
+                #{{ user.id }}
               </td>
               
-              <!-- Email -->
-              <td class="p-4 font-mono text-xs text-slate-350">
-                {{ user.email }}
+              <!-- Username -->
+              <td class="p-4">
+                <div class="font-bold text-white leading-snug">{{ user.username }}</div>
               </td>
 
               <!-- Role Badge -->
@@ -84,18 +84,12 @@
                 </span>
               </td>
 
-              <!-- Actions -->
+              <!-- Status -->
               <td class="p-4 text-right">
-                @if (user.email.toLowerCase() !== 'admin@mohammadi.com') {
-                  <button
-                    (click)="onDeleteUser(user.email)"
-                    class="px-3 py-1.5 bg-slate-950 hover:bg-rose-500/20 hover:text-rose-400 border border-slate-800 hover:border-rose-500/30 text-rose-500 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer font-mono"
-                  >
-                    Delete Account
-                  </button>
-                } @else {
-                  <span class="text-xs text-slate-650 font-mono italic select-none">Protected</span>
-                }
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg font-mono">
+                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  Active
+                </span>
               </td>
             </tr>
           } @empty {
