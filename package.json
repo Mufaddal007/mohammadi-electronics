@@ -6,7 +6,8 @@
     "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build && node generate-sitemap.js",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+	"deploy": "powershell -ExecutionPolicy Bypass -File ./deploy.ps1"
   },
   "private": true,
   "packageManager": "npm@11.6.2",
