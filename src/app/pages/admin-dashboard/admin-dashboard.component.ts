@@ -5,6 +5,7 @@ import { Enquiry, Feedback } from '../../services/mock-data.service';
 import { ProductService } from '../../services/product.service';
 import { ServiceRequestService } from '../../services/service-request.service';
 import { FeedbackService } from '../../services/feedback.service';
+import { getCategoryNameById } from '../../models/product.model';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -37,7 +38,8 @@ export class AdminDashboardComponent implements OnInit {
 
         // determine most popular category (count products per category)
         const categoryCounts = apiProducts.reduce((acc, curr) => {
-          acc[curr.category_name] = (acc[curr.category_name] || 0) + 1;
+          const catName = getCategoryNameById(curr.category_id);
+          acc[catName] = (acc[catName] || 0) + 1;
           return acc;
         }, {} as Record<string, number>);
 

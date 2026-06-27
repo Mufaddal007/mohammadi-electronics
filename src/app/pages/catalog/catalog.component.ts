@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
-import { ProductCatalogItem } from '../../models/product.model';
+import { ProductCatalogItem, getCategoryNameById } from '../../models/product.model';
 
 export interface Product {
   id: string;
@@ -55,7 +55,7 @@ export class CatalogComponent implements OnInit {
             id: String(p.id),
             name: p.name,
             brand: brand,
-            category: p.category_name,
+            category: getCategoryNameById(p.category_id),
             price: p.price,
             specifications: specifications,
             stockStatus: stockStatus,
