@@ -32,6 +32,7 @@ export class AdminInventoryComponent implements OnInit {
   isEditing = signal(false);
   editingId: string | null = null;
   rawSpecs = '';
+  uploading = signal(false);
 
   formData = {
     name: '',
@@ -45,6 +46,41 @@ export class AdminInventoryComponent implements OnInit {
 
   ngOnInit() {
     this.loadProducts();
+  }
+
+  resolveImageUrl(url: string | undefined | null): string {
+    if (!url) return '';
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    return `${this.productService.domain}/${url}`;
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    
+    // Validate file type
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
+    const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    if (!allowedExtensions.includes(fileExtension)) {
+      alert('Unsupported file type. Allowed types: .jpg, .jpeg, .png, .webp');
+      return;
+    }
+
+    this.uploading.set(true);
+    this.productService.uploadProductImage(file).subscribe({
+      next: (res) => {
+        this.uploading.set(false);
+        if (res && res.relative_url) {
+          this.formData.imageUrl = res.relative_url;
+        }
+      },
+      error: (err) => {
+        this.uploading.set(false);
+        alert('Upload failed: ' + err.message);
+      }
+    });
   }
 
   loadProducts() {

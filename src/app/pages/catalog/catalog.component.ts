@@ -60,7 +60,9 @@ export class CatalogComponent implements OnInit {
             specifications: specifications,
             stockStatus: stockStatus,
             quantity: p.stock_qty,
-            imageUrl: p.image_url
+            imageUrl: p.image_url 
+              ? (p.image_url.startsWith('http') || p.image_url.startsWith('data:') ? p.image_url : `https://mohammadielectronics.com/${p.image_url}`) 
+              : ''
           };
         });
         this.products.set(mapped);

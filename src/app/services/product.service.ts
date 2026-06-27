@@ -29,6 +29,17 @@ export class ProductService {
     );
   }
 
+  uploadProductImage(file: File): Observable<{ status: string; message: string; relative_url: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ status: string; message: string; relative_url: string }>(
+      `${this.domain}/api/admin/products/upload-image`,
+      formData
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   private handleError(error: HttpErrorResponse) {
     let errorMsg = 'An unknown error occurred!';
     if (error.error instanceof ErrorEvent) {

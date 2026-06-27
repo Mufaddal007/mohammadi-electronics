@@ -1,0 +1,36 @@
+@if (currentError(); as err) {
+  <div class="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-955/75 backdrop-blur-sm select-none p-4 cursor-default">
+    <div class="w-full max-w-md bg-slate-900 border border-rose-500/20 rounded-3xl p-6 shadow-2xl relative animate-modal-entrance">
+      <!-- Glow background accent -->
+      <div class="absolute -top-10 -left-10 w-40 h-40 bg-rose-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Icon & Status -->
+      <div class="flex items-center gap-4 mb-4">
+        <div class="p-3 bg-rose-500/10 text-rose-500 rounded-2xl border border-rose-500/20">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <div>
+          <span class="text-[10px] font-bold text-rose-500 tracking-widest font-mono uppercase">System Error Detected</span>
+          <h3 class="text-xl font-black text-white uppercase tracking-tight">Code {{ err.status }}</h3>
+        </div>
+      </div>
+
+      <!-- Message -->
+      <p class="text-sm text-slate-350 leading-relaxed font-sans mb-6">
+        {{ err.message }}
+      </p>
+
+      <!-- CTA Dismiss -->
+      <div class="flex items-center justify-end gap-3 border-t border-slate-850 pt-4">
+        <button 
+          (click)="dismiss()"
+          class="px-5 py-2.5 bg-rose-500 hover:bg-rose-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(239,68,68,0.25)]"
+        >
+          Acknowledge & Close
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -5,6 +5,7 @@ import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { AdminSidebarComponent } from './components/admin-sidebar/admin-sidebar.component';
 import { LoadingService } from './services/loading.service';
+import { ErrorComponent } from './components/error/error.component';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -15,7 +16,8 @@ import { filter } from 'rxjs/operators';
     RouterOutlet, 
     HeaderComponent, 
     FooterComponent, 
-    AdminSidebarComponent
+    AdminSidebarComponent,
+    ErrorComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',

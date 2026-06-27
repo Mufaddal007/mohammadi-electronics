@@ -121,21 +121,79 @@
             ></textarea>
           </div>
 
-          <!-- Image URL -->
-          <div>
-            <label for="imageUrl" class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Image URL (Optional)</label>
-            <input
-              type="text"
-              id="imageUrl"
-              name="imageUrl"
-              [(ngModel)]="formData.imageUrl"
-              placeholder="Paste image link, or leave empty for generic graphic placeholder"
-              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 text-sm"
-            />
-            <span class="text-[10px] text-slate-500 mt-1.5 block">
-              Defaults to a sleek reactive vector energy graphic if left blank.
-            </span>
+        <!-- Image Upload & Preview Section -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
+          <!-- File dropzone and text inputs (9 cols) -->
+          <div class="md:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- File upload drag/click zone -->
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">
+                Upload Product Image
+              </label>
+              <div class="relative flex items-center justify-center border border-dashed border-slate-700 hover:border-teal-500/50 rounded-xl p-4 bg-slate-955/40 min-h-[96px] transition-colors">
+                <input 
+                  type="file" 
+                  accept=".jpg,.jpeg,.png,.webp" 
+                  (change)="onFileSelected($event)" 
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  [disabled]="uploading()"
+                />
+                <div class="text-center space-y-1">
+                  @if (uploading()) {
+                    <div class="inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-teal-500 border-r-transparent align-middle"></div>
+                    <p class="text-[10px] text-slate-400 font-semibold font-mono uppercase tracking-wider">Uploading asset...</p>
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-6 w-6 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p class="text-[10px] text-slate-450 font-medium">Click or Drag Image File</p>
+                    <p class="text-[8px] text-slate-650 font-mono">JPG, PNG, WEBP allowed</p>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Fallback URL input -->
+            <div>
+              <label for="imageUrl" class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">
+                Image URL (Fallback / Manual)
+              </label>
+              <input
+                type="text"
+                id="imageUrl"
+                name="imageUrl"
+                [(ngModel)]="formData.imageUrl"
+                placeholder="media/prod_xxx.jpg or https://..."
+                class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 text-xs font-medium"
+              />
+              <span class="text-[10px] text-slate-500 mt-1.5 block">
+                Defaults to a sleek reactive vector energy graphic if left blank.
+              </span>
+            </div>
           </div>
+
+          <!-- Preview box (3 cols) -->
+          <div class="md:col-span-3 flex flex-col justify-end">
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Image Preview</label>
+            <div class="w-full h-[96px] rounded-xl bg-slate-950 border border-slate-850 flex items-center justify-center overflow-hidden">
+              @if (formData.imageUrl) {
+                <img 
+                  [src]="resolveImageUrl(formData.imageUrl)" 
+                  class="w-full h-full object-cover opacity-80"
+                  (error)="onImgError($event)"
+                />
+              } @else {
+                <div class="text-center text-slate-700 space-y-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <p class="text-[9px] font-mono tracking-wider">NO IMAGE</p>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
         </div>
 
         <!-- Buttons -->
@@ -183,7 +241,7 @@
             <tr class="hover:bg-slate-950/10 transition-colors">
               <td class="p-4">
                 <img 
-                  [src]="prod.imageUrl" 
+                  [src]="resolveImageUrl(prod.imageUrl)" 
                   [alt]="prod.name"
                   class="w-12 h-8 rounded-lg object-cover bg-slate-950 border border-slate-800"
                   (error)="onImgError($event)"
