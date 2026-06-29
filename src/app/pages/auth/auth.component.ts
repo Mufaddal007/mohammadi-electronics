@@ -23,8 +23,10 @@ export class AuthComponent {
   signInEmail = '';
   signInPassword = signal('');
 
-  signUpName = '';
+  signUpUsername = '';
+  signUpFullName = '';
   signUpEmail = '';
+  signUpMobile = '';
   signUpPassword = signal('');
 
   // Reactive Password Strength for Lamp Animation
@@ -85,20 +87,39 @@ export class AuthComponent {
     this.errorMessage.set('');
     this.successMessage.set('');
 
+    if (!this.signUpUsername.trim()) {
+      this.errorMessage.set('Username is required.');
+      return;
+    }
+    if (!this.signUpFullName.trim()) {
+      this.errorMessage.set('Full Name is required.');
+      return;
+    }
     if (!this.signUpEmail.trim()) {
-      this.errorMessage.set('Username/Email is required.');
+      this.errorMessage.set('Email is required.');
+      return;
+    }
+    if (!this.signUpMobile.trim()) {
+      this.errorMessage.set('Mobile Number is required.');
+      return;
+    }
+    if (!this.signUpPassword().trim()) {
+      this.errorMessage.set('Password is required.');
       return;
     }
 
     this.authService.signUp({
-      username: this.signUpEmail.trim(),
-      password: this.signUpPassword()
+      username: this.signUpUsername.trim(),
+      full_name: this.signUpFullName.trim(),
+      email: this.signUpEmail.trim(),
+      password: this.signUpPassword(),
+      mobile_number: this.signUpMobile.trim()
     }).subscribe({
       next: () => {
         this.successMessage.set('User registered successfully! Logging you in...');
         
         // Auto-login on success
-        this.authService.login(this.signUpEmail, this.signUpPassword()).subscribe({
+        this.authService.login(this.signUpUsername.trim(), this.signUpPassword()).subscribe({
           next: () => {
             setTimeout(() => {
               this.router.navigate(['/']);

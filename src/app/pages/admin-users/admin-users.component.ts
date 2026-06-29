@@ -42,7 +42,10 @@ export class AdminUsersComponent implements OnInit {
     if (!query) return list;
 
     return list.filter(u => 
-      u.username.toLowerCase().includes(query)
+      u.username.toLowerCase().includes(query) ||
+      (u.full_name && u.full_name.toLowerCase().includes(query)) ||
+      (u.email && u.email.toLowerCase().includes(query)) ||
+      (u.mobile_number && u.mobile_number.toLowerCase().includes(query))
     );
   });
 }

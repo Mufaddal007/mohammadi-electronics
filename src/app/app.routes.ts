@@ -90,6 +90,12 @@ export const routes: Routes = [
     title: 'Admin - Registered Users',
     canActivate: [adminGuard]
   },
+  {
+    path: 'admin/orders',
+    loadComponent: () => import('./pages/admin-orders/admin-orders.component').then(m => m.AdminOrdersComponent),
+    title: 'Admin - Orders Tracking',
+    canActivate: [adminGuard]
+  },
 
   // Fallback
   {

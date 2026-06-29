@@ -1,0 +1,130 @@
+<div class="space-y-8 max-w-7xl mx-auto">
+  <!-- Title -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-black tracking-tight text-white uppercase font-sans">Orders Tracking</h1>
+      <p class="text-xs text-slate-400 font-mono mt-1">MONITOR AND PROCESS CUSTOMER PRODUCT ORDERS</p>
+    </div>
+  </div>
+
+  <!-- Search & Feedback Alerts -->
+  <div class="space-y-4">
+    @if (errorMessage()) {
+      <div class="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold rounded-2xl flex items-center gap-3 animate-fade-in font-mono">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <!-- Search Controls Bar -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center shadow-md">
+      <div class="relative w-full max-w-md">
+        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-555">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </span>
+        <input
+          type="text"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          placeholder="Search by customer name, phone, product or status..."
+          class="w-full bg-slate-955 border border-slate-850 hover:border-slate-800 text-white placeholder-slate-600 text-xs rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-teal-500 font-medium transition-colors font-mono"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders Table Card -->
+  <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-lg animate-fade-in">
+    <div class="overflow-x-auto font-sans">
+      <table class="w-full text-left border-collapse text-sm">
+        <thead>
+          <tr class="border-b border-slate-800 bg-slate-955/20 text-slate-500 text-xs font-mono uppercase tracking-wider">
+            <th class="p-4 font-semibold">Order ID</th>
+            <th class="p-4 font-semibold">Customer Details</th>
+            <th class="p-4 font-semibold">Shipping Address</th>
+            <th class="p-4 font-semibold">Product info</th>
+            <th class="p-4 font-semibold text-center">Qty</th>
+            <th class="p-4 font-semibold text-right">Total Price</th>
+            <th class="p-4 font-semibold text-center">Status</th>
+            <th class="p-4 font-semibold text-center">Order Date</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-850">
+          @for (order of filteredOrders(); track order.order_id) {
+            <tr class="hover:bg-slate-950/15 transition-colors">
+              <!-- Order ID -->
+              <td class="p-4 font-mono text-xs text-slate-400">
+                #{{ order.order_id }}
+              </td>
+
+              <!-- Customer Details -->
+              <td class="p-4">
+                <div class="font-bold text-white leading-snug">{{ order.customer_name }}</div>
+                <div class="text-[10px] text-slate-400 font-mono mt-0.5">{{ order.phone }}</div>
+                @if (order.email) {
+                  <div class="text-[9px] text-slate-500 font-mono">{{ order.email }}</div>
+                }
+              </td>
+
+              <!-- Shipping Address -->
+              <td class="p-4 text-xs text-slate-350 max-w-xs truncate" [title]="order.shipping_address">
+                {{ order.shipping_address }}
+              </td>
+
+              <!-- Product Info -->
+              <td class="p-4">
+                <div class="flex items-center gap-3">
+                  <img 
+                    [src]="resolveImageUrl(order.image_url)" 
+                    class="w-10 h-7 rounded object-cover bg-slate-950 border border-slate-800"
+                    (error)="onImgError($event)"
+                  />
+                  <div class="font-semibold text-slate-200 text-xs truncate max-w-[150px]" [title]="order.product_name">
+                    {{ order.product_name }}
+                  </div>
+                </div>
+              </td>
+
+              <!-- Qty -->
+              <td class="p-4 text-center font-mono text-xs text-white">
+                {{ order.quantity }}
+              </td>
+
+              <!-- Total Price -->
+              <td class="p-4 text-right font-mono text-xs font-bold text-teal-400">
+                ₹{{ order.total_price.toLocaleString('en-IN') }}
+              </td>
+
+              <!-- Status -->
+              <td class="p-4 text-center">
+                <span 
+                  [class]="order.order_status === 'Pending' 
+                    ? 'bg-amber-500/10 text-amber-400 border border-amber-500/25' 
+                    : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/25'"
+                  class="inline-block px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide border font-mono"
+                >
+                  {{ order.order_status }}
+                </span>
+              </td>
+
+              <!-- Order Date -->
+              <td class="p-4 text-center text-xs font-mono text-slate-400">
+                {{ order.created_at || 'N/A' }}
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="text-center py-16 text-slate-500 font-mono text-xs">
+                No orders found matching query.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

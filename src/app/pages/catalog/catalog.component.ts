@@ -2,7 +2,10 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
+import { AuthService } from '../../services/auth.service';
+import { OrderService } from '../../services/order.service';
 import { ProductCatalogItem, getCategoryNameById } from '../../models/product.model';
+import { OrderPlacementRequest } from '../../models/order.model';
 
 export interface Product {
   id: string;
@@ -25,6 +28,8 @@ export interface Product {
 })
 export class CatalogComponent implements OnInit {
   private productService = inject(ProductService);
+  private authService = inject(AuthService);
+  private orderService = inject(OrderService);
 
   products = signal<Product[]>([]);
   searchQuery = '';
@@ -34,6 +39,95 @@ export class CatalogComponent implements OnInit {
   // Pagination state
   currentPage = signal<number>(1);
   pageSize = signal<number>(6);
+
+  // Order Placement Modal state
+  showOrderModal = signal(false);
+  selectedProduct = signal<Product | null>(null);
+  submittingOrder = signal(false);
+
+  // Form Fields
+  customerName = signal('');
+  customerPhone = signal('');
+  customerEmail = signal('');
+  shippingAddress = signal('');
+  orderQuantity = signal(1);
+
+  // Total price computed signal
+  orderTotalPrice = computed(() => {
+    const prod = this.selectedProduct();
+    return prod ? prod.price * this.orderQuantity() : 0;
+  });
+
+  openOrderModal(prod: Product) {
+    this.selectedProduct.set(prod);
+    this.orderQuantity.set(1);
+    this.submittingOrder.set(false);
+
+    // Pre-fill fields if user is logged in
+    const email = this.authService.currentUserEmail();
+    const username = this.authService.currentUserUsername();
+    this.customerEmail.set(email || username || '');
+
+    const fullName = this.authService.currentUserFullName();
+    this.customerName.set(fullName || '');
+
+    const phone = this.authService.currentUserPhone();
+    this.customerPhone.set(phone || '');
+
+    // Open modal
+    this.showOrderModal.set(true);
+  }
+
+  closeOrderModal() {
+    this.showOrderModal.set(false);
+    this.selectedProduct.set(null);
+    this.customerName.set('');
+    this.customerPhone.set('');
+    this.customerEmail.set('');
+    this.shippingAddress.set('');
+    this.orderQuantity.set(1);
+  }
+
+  submitOrder() {
+    const prod = this.selectedProduct();
+    if (!prod) return;
+
+    if (!this.customerName().trim()) {
+      alert('Please enter your name.');
+      return;
+    }
+    if (!this.customerPhone().trim()) {
+      alert('Please enter your phone number.');
+      return;
+    }
+    if (!this.shippingAddress().trim()) {
+      alert('Please enter your shipping address.');
+      return;
+    }
+
+    const payload: OrderPlacementRequest = {
+      customer_name: this.customerName().trim(),
+      phone: this.customerPhone().trim(),
+      email: this.customerEmail().trim(),
+      shipping_address: this.shippingAddress().trim(),
+      product_id: Number(prod.id),
+      quantity: this.orderQuantity(),
+      total_price: this.orderTotalPrice()
+    };
+
+    this.submittingOrder.set(true);
+    this.orderService.placeOrder(payload).subscribe({
+      next: (res) => {
+        this.submittingOrder.set(false);
+        alert(res.message || 'Your order has been recorded successfully! Our team will contact you shortly.');
+        this.closeOrderModal();
+      },
+      error: (err) => {
+        this.submittingOrder.set(false);
+        alert('Failed to place order: ' + err.message);
+      }
+    });
+  }
 
   ngOnInit() {
     this.productService.getProducts().subscribe({

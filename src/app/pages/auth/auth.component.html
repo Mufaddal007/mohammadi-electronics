@@ -176,12 +176,6 @@
               />
             </div>
 
-            <!-- Predefined login suggestions tip -->
-            <div class="p-4 bg-slate-950/50 border border-slate-800/80 rounded-2xl text-xs text-slate-400 leading-relaxed font-sans mt-6">
-              <span class="font-bold text-amber-500 font-mono block mb-1">PRO-TIP FOR EVALUATORS:</span>
-              Use <code class="text-teal-400 font-mono font-bold">admin@mohammadi.com</code> with password <code class="text-teal-400 font-mono font-bold">admin123</code> to access the complete admin dashboards, or signup a normal customer account.
-            </div>
-
             <button
               type="submit"
               class="w-full py-3.5 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-[0_0_15px_rgba(20,184,166,0.2)] mt-8 cursor-pointer"
@@ -195,12 +189,23 @@
         @if (isSignUp()) {
           <form (ngSubmit)="onSignUp()" class="space-y-5">
             <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Username</label>
+              <input
+                type="text"
+                required
+                name="signUpUsername"
+                [(ngModel)]="signUpUsername"
+                placeholder="e.g. ramesh_patel"
+                class="w-full bg-slate-955 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-655 focus:outline-none focus:border-teal-500 text-sm font-mono"
+              />
+            </div>
+            <div>
               <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Full Name</label>
               <input
                 type="text"
                 required
-                name="signUpName"
-                [(ngModel)]="signUpName"
+                name="signUpFullName"
+                [(ngModel)]="signUpFullName"
                 placeholder="e.g. Ramesh Patel"
                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 text-sm"
               />
@@ -213,7 +218,18 @@
                 name="signUpEmail"
                 [(ngModel)]="signUpEmail"
                 placeholder="e.g. customer@example.com"
-                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 text-sm"
+                class="w-full bg-slate-955 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-655 focus:outline-none focus:border-teal-500 text-sm font-mono"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Mobile Number</label>
+              <input
+                type="tel"
+                required
+                name="signUpMobile"
+                [(ngModel)]="signUpMobile"
+                placeholder="e.g. +919876543210"
+                class="w-full bg-slate-955 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-655 focus:outline-none focus:border-teal-500 text-sm font-mono"
               />
             </div>
             <div>

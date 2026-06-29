@@ -44,6 +44,27 @@ export class AuthService {
     return decoded?.sub || null; // standard OAuth2 'sub' claim
   });
 
+  currentUserFullName = computed(() => {
+    const token = this.currentUserToken();
+    if (!token) return null;
+    const decoded = decodeToken(token);
+    return decoded?.full_name || null;
+  });
+
+  currentUserPhone = computed(() => {
+    const token = this.currentUserToken();
+    if (!token) return null;
+    const decoded = decodeToken(token);
+    return decoded?.phone || decoded?.mobile_number || null;
+  });
+
+  currentUserEmail = computed(() => {
+    const token = this.currentUserToken();
+    if (!token) return null;
+    const decoded = decodeToken(token);
+    return decoded?.email || null;
+  });
+
   isAuthenticated = computed(() => !!this.currentUserToken());
   isAdmin = computed(() => this.currentUserRole() === 'admin');
 
