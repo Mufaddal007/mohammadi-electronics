@@ -31,7 +31,13 @@ $RemoteDestination = "${PI_USER}@${PI_IP}:${REMOTE_STAGING_PATH}/"
 
 # 4. Atomically wipe the Nginx directory and shift files into place using administrative sudo privs
 Write-Host "[4/4] Activating production push and finalizing permissions..." -ForegroundColor Yellow
-$DeployCommand = "sudo rm -rf $REMOTE_TARGET_PATH/* && sudo cp -r $REMOTE_STAGING_PATH/* $REMOTE_TARGET_PATH/ && sudo chown -R mufaddal:www-data $REMOTE_TARGET_PATH && sudo chmod -R 755 $REMOTE_TARGET_PATH"
+$DeployCommand = @"
+sudo find $REMOTE_TARGET_PATH -mindepth 1 -maxdepth 1 ! -name 'media' -exec rm -rf {} + && \
+sudo cp -r $REMOTE_STAGING_PATH/* $REMOTE_TARGET_PATH/ && \
+sudo chown -R mufaddal:www-data $REMOTE_TARGET_PATH && \
+sudo chmod -R 755 $REMOTE_TARGET_PATH
+"@
+
 ssh "$PI_USER@$PI_IP" $DeployCommand
 
 Write-Host " "
