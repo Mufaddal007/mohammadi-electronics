@@ -51,6 +51,23 @@ export interface ProductRequest {
   status: 'Pending' | 'Sourced' | 'Unobtainable';
 }
 
+export interface SmartHomeQuery {
+  id: string;
+  customerName: string;
+  phone: string;
+  email: string;
+  homeType: string;
+  areaOfInterest: string;
+  problemStatement: string;
+  date: string;
+  status: 'Pending' | 'Responded';
+  adminResponse?: {
+    type: 'existing_solution' | 'custom_explanation';
+    solutionDetails: string;
+  };
+}
+
+
 @Injectable({
   providedIn: 'root',
 })
@@ -225,11 +242,42 @@ export class MockDataService {
     }
   ];
 
+  // Initial Mock Smart Home Queries
+  private initialSmartHomeQueries: SmartHomeQuery[] = [
+    {
+      id: 'shq-1',
+      customerName: 'Mufaddal Darbar',
+      phone: '+919876543210',
+      email: 'mufaddal@example.com',
+      homeType: 'Independent Villa',
+      areaOfInterest: 'Lighting Control',
+      problemStatement: 'I want my outdoor garden lights to automatically turn on at sunset and dim to 30% after midnight, then turn off at sunrise. Can this be automated?',
+      date: '2026-06-29T10:15:00.000Z',
+      status: 'Pending'
+    },
+    {
+      id: 'shq-2',
+      customerName: 'Ramesh Patel',
+      phone: '+919414000000',
+      email: 'ramesh@example.com',
+      homeType: 'Apartment',
+      areaOfInterest: 'Security Cameras',
+      problemStatement: 'I need a security monitoring setup for my entrance that alerts my phone only if it detects human motion, avoiding false alarms from street dogs.',
+      date: '2026-06-28T09:30:00.000Z',
+      status: 'Responded',
+      adminResponse: {
+        type: 'existing_solution',
+        solutionDetails: 'We suggest our Crompton Smart Wi-Fi Camera series which features AI-based Human Detection. It filters motion from pets/animals and sends direct push alerts to your smartphone via the app.'
+      }
+    }
+  ];
+
   // BehaviorSubjects for state preservation
   private productsSubject = new BehaviorSubject<Product[]>(this.getLocalStorage('products', this.initialProducts));
   private enquiriesSubject = new BehaviorSubject<Enquiry[]>(this.getLocalStorage('enquiries', this.initialEnquiries));
   private feedbacksSubject = new BehaviorSubject<Feedback[]>(this.getLocalStorage('feedbacks', this.initialFeedbacks));
   private productRequestsSubject = new BehaviorSubject<ProductRequest[]>(this.getLocalStorage('productRequests', this.initialProductRequests));
+  private smartHomeQueriesSubject = new BehaviorSubject<SmartHomeQuery[]>(this.getLocalStorage('smartHomeQueries', this.initialSmartHomeQueries));
 
   constructor() {}
 
@@ -455,5 +503,30 @@ export class MockDataService {
     );
     this.productRequestsSubject.next(updated);
     this.setLocalStorage('productRequests', updated);
+  }
+
+  // --- Smart Home Queries State Management ---
+  getSmartHomeQueries(): Observable<SmartHomeQuery[]> {
+    return this.smartHomeQueriesSubject.asObservable();
+  }
+
+  addSmartHomeQuery(query: Omit<SmartHomeQuery, 'id' | 'date' | 'status'>): void {
+    const newQuery: SmartHomeQuery = {
+      ...query,
+      id: `shq-${Date.now()}`,
+      date: new Date().toISOString(),
+      status: 'Pending'
+    };
+    const updated = [newQuery, ...this.smartHomeQueriesSubject.value];
+    this.smartHomeQueriesSubject.next(updated);
+    this.setLocalStorage('smartHomeQueries', updated);
+  }
+
+  respondToSmartHomeQuery(id: string, response: SmartHomeQuery['adminResponse']): void {
+    const updated = this.smartHomeQueriesSubject.value.map(q => 
+      q.id === id ? { ...q, status: 'Responded' as const, adminResponse: response } : q
+    );
+    this.smartHomeQueriesSubject.next(updated);
+    this.setLocalStorage('smartHomeQueries', updated);
   }
 }

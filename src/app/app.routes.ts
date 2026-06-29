@@ -44,6 +44,16 @@ export const routes: Routes = [
     title: 'Request Sourcing | Special Order'
   },
   {
+    path: 'smart-home-query',
+    loadComponent: () => import('./pages/smart-home-query/smart-home-query.component').then(m => m.SmartHomeQueryComponent),
+    title: 'Smart Home Automation Consultation'
+  },
+  {
+    path: 'faq',
+    loadComponent: () => import('./pages/faq/faq.component').then(m => m.FaqComponent),
+    title: 'FAQs - Mohammadi Electronics'
+  },
+  {
     path: 'product-demands',
     redirectTo: 'product-request',
     pathMatch: 'full'
@@ -94,6 +104,12 @@ export const routes: Routes = [
     path: 'admin/orders',
     loadComponent: () => import('./pages/admin-orders/admin-orders.component').then(m => m.AdminOrdersComponent),
     title: 'Admin - Orders Tracking',
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'admin/smart-home',
+    loadComponent: () => import('./pages/admin-smart-home/admin-smart-home.component').then(m => m.AdminSmartHomeComponent),
+    title: 'Admin - Smart Home Queries',
     canActivate: [adminGuard]
   },
 
