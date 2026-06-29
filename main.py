@@ -48,6 +48,22 @@ class ProductSaveRequest(BaseModel):
     stock_qty: int
     low_stock_threshold: int = 2
     specs: List[SpecItem] = []
+    
+class UserCreate(BaseModel):
+    username: str
+    full_name: str          # Added
+    email: str         # Added (Ensure 'pydantic[email]' is installed, or use 'str')
+    password: str
+    mobile_number: str      # Added
+    
+class OrderCreate(BaseModel):
+    customer_name: str
+    phone: str
+    email: Optional[str] = None
+    shipping_address: str
+    product_id: int
+    quantity: int = 1
+    total_price: float
 
 
 
@@ -230,16 +246,32 @@ def log_product_demand(payload: ProductDemandCreate):
 @app.get("/api/admin/users", status_code=status.HTTP_200_OK)
 def get_all_registered_users(admin_user: dict = Depends(verify_admin_role)):
     conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row  # Maps columns directly by name string
+    conn.row_factory = sqlite3.Row  # Crucial for column-name key mapping
     cursor = conn.cursor()
     
+    # Selecting the updated profile metrics, leaving out the secure password hashes
+    query = """
+        SELECT 
+            id, 
+            username, 
+            full_name, 
+            email, 
+            mobile_number, 
+            role, 
+            created_at 
+        FROM users 
+        ORDER BY created_at DESC
+    """
     try:
-        # Retrieve directory safely without touching hashed password bytes
-        cursor.execute("SELECT id, username, role FROM users ORDER BY id ASC")
+        cursor.execute(query)
+        # Convert row records directly into a clean, JSON-serializable list of dictionaries
         user_list = [dict(row) for row in cursor.fetchall()]
         return user_list
     except sqlite3.Error as e:
-        raise HTTPException(status_code=500, detail=f"Database fetch breakdown: {e}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Database reading breakdown: {e}"
+        )
     finally:
         conn.close()
 
@@ -374,25 +406,44 @@ def save_or_update_product(payload: ProductSaveRequest, admin_user: dict = Depen
 
 
 # 1. NEW: User Registration Endpoint (JSON Input)
+# =====================================================================
+# 👥 UPDATED REGISTRATION PIPELINE
+# =====================================================================
 @app.post("/api/signup", status_code=status.HTTP_201_CREATED)
-def signup(user_data: SignUpRequest):
-    hashed = pwd_context.hash(user_data.password)
-    
+def register_new_store_user(payload: UserCreate):
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
-    try:
-        # Defaulting first user or manual entries to 'user' role
-        cursor.execute(
-            "INSERT INTO users (username, hashed_password, role) VALUES (?, ?, ?)",
-            (user_data.username, hashed, "user")
-        )
-        conn.commit()
-    except sqlite3.IntegrityError:
-        conn.close()
-        raise HTTPException(status_code=400, detail="Username already registered")
     
-    conn.close()
-    return {"status": "Success", "message": "User registered successfully!"}
+    # Check if username or email conflicts already exist in the system
+    cursor.execute("SELECT id FROM users WHERE username = ? OR email = ?", (payload.username, payload.email))
+    if cursor.fetchone():
+        conn.close()
+        raise HTTPException(
+            status_code=400, 
+            detail="Username or Email address has already been registered."
+        )
+        
+    # Encrypt the raw plain text password using your passlib/bcrypt context handler
+    encrypted_password = pwd_context.hash(payload.password)
+    
+    try:
+        cursor.execute("""
+            INSERT INTO users (username, full_name, email, hashed_password, mobile_number, role)
+            VALUES (?, ?, ?, ?, ?, 'user')
+        """, (
+            payload.username,
+            payload.full_name,
+            payload.email.lower().strip(),
+            encrypted_password,
+            payload.mobile_number.strip()
+        ))
+        conn.commit()
+        return {"status": "Success", "message": "Account profile generated successfully!"}
+    except sqlite3.Error as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Database registration failure: {e}")
+    finally:
+        conn.close()
 
 # 2. UPDATED: Authentication Endpoint (Form Input -> DB Checked)
 @app.post("/api/login")
@@ -421,3 +472,68 @@ def admin_dashboard(admin_user: dict = Depends(verify_admin_role)):
         "status": "Secure Access Granted",
         "message": f"Hello Manager {admin_user['username']}! Here is your secure data panel."
     }
+
+
+
+# =====================================================================
+# 🛒 ORDER PROCESSING PIPELINES
+# =====================================================================
+
+@app.post("/api/orders", status_code=status.HTTP_201_CREATED)
+def place_customer_order(payload: OrderCreate):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("PRAGMA foreign_keys = ON;")
+    
+    # Verify the ordered electronics product actually exists in inventory
+    cursor.execute("SELECT id FROM products WHERE id = ?", (payload.product_id,))
+    if not cursor.fetchone():
+        conn.close()
+        raise HTTPException(status_code=404, detail="The requested item is out of stock or does not exist.")
+        
+    try:
+        cursor.execute("""
+            INSERT INTO orders (customer_name, phone, email, shipping_address, product_id, quantity, total_price)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            payload.customer_name, 
+            payload.phone, 
+            payload.email, 
+            payload.shipping_address, 
+            payload.product_id, 
+            payload.quantity, 
+            payload.total_price
+        ))
+        conn.commit()
+        return {"status": "Success", "message": "Your order has been recorded successfully! Our team will contact you shortly."}
+    except sqlite3.Error as e:
+        conn.rollback()
+        raise HTTPException(status_code=400, detail=f"Transaction processing breakdown: {e}")
+    finally:
+        conn.close()
+
+
+@app.get("/api/admin/orders", status_code=status.HTTP_200_OK)
+def get_all_orders_dashboard(admin_user: dict = Depends(verify_admin_role)):
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
+    # Using an INNER JOIN to grab product detail specs right alongside user shipping info
+    query = """
+        SELECT 
+            o.id AS order_id, o.customer_name, o.phone, o.email, o.shipping_address, 
+            o.quantity, o.total_price, o.order_status, o.created_at,
+            p.name AS product_name, p.image_url
+        FROM orders o
+        INNER JOIN products p ON o.product_id = p.id
+        ORDER BY o.created_at DESC
+    """
+    try:
+        cursor.execute(query)
+        order_records = [dict(row) for row in cursor.fetchall()]
+        return order_records
+    except sqlite3.Error as e:
+        raise HTTPException(status_code=500, detail=f"Database extraction error: {e}")
+    finally:
+        conn.close()
