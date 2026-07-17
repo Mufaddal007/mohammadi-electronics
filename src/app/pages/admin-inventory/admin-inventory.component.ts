@@ -590,7 +590,7 @@ export class AdminInventoryComponent implements OnInit {
       worksheet.getCell(`C${i}`).dataValidation = {
         type: 'list',
         allowBlank: true,
-        formulae: ['"Inverters,Batteries,Coolers,Fans,Stabilizers"']
+        formulae: ['"Inverters,Batteries,Coolers,Fans,Stabilizers,Smart Home Automation"']
       };
     }
 

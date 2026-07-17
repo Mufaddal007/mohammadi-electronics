@@ -32,9 +32,9 @@ export class CatalogComponent implements OnInit {
   private orderService = inject(OrderService);
 
   products = signal<Product[]>([]);
-  searchQuery = '';
+  searchQuery = signal<string>('');
   selectedCategory = signal<string>('All');
-  categories = ['All', 'Inverters', 'Batteries', 'Coolers', 'Fans', 'Stabilizers'];
+  categories = ['All', 'Inverters', 'Batteries', 'Coolers', 'Fans', 'Stabilizers', 'Smart Home Automation'];
 
   // Pagination state
   currentPage = signal<number>(1);
@@ -135,9 +135,9 @@ export class CatalogComponent implements OnInit {
         const mapped: Product[] = apiProducts.map(p => {
           const brandSpec = p.specs?.find(s => s.spec_key.toLowerCase() === 'brand');
           const brand = brandSpec ? brandSpec.spec_value : (p.name.split(' ')[0] || 'Generic');
-          
+
           const specifications = p.specs?.map(s => `${s.spec_key}: ${s.spec_value}`) || [];
-          
+
           let stockStatus: 'in-stock' | 'low-stock' | 'out-of-stock' = 'in-stock';
           if (p.stock_qty <= 0) {
             stockStatus = 'out-of-stock';
@@ -154,8 +154,8 @@ export class CatalogComponent implements OnInit {
             specifications: specifications,
             stockStatus: stockStatus,
             quantity: p.stock_qty,
-            imageUrl: p.image_url 
-              ? (p.image_url.startsWith('http') || p.image_url.startsWith('data:') ? p.image_url : `https://mohammadielectronics.com/${p.image_url}`) 
+            imageUrl: p.image_url
+              ? (p.image_url.startsWith('http') || p.image_url.startsWith('data:') ? p.image_url : `https://mohammadielectronics.com/${p.image_url}`)
               : ''
           };
         });
@@ -168,7 +168,7 @@ export class CatalogComponent implements OnInit {
   }
 
   onSearchChange(val: string) {
-    this.searchQuery = val;
+    this.searchQuery.set(val);
     this.currentPage.set(1);
   }
 
@@ -179,7 +179,7 @@ export class CatalogComponent implements OnInit {
 
   // Double filter implementation
   filteredProducts = computed(() => {
-    const q = this.searchQuery.toLowerCase().trim();
+    const q = this.searchQuery().toLowerCase().trim();
     const cat = this.selectedCategory();
     let list = this.products();
 
@@ -188,7 +188,7 @@ export class CatalogComponent implements OnInit {
     }
 
     if (q) {
-      list = list.filter(p => 
+      list = list.filter(p =>
         p.name.toLowerCase().includes(q) ||
         p.brand.toLowerCase().includes(q) ||
         p.specifications.some(spec => spec.toLowerCase().includes(q))

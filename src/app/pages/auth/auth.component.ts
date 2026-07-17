@@ -29,6 +29,62 @@ export class AuthComponent {
   signUpMobile = '';
   signUpPassword = signal('');
 
+  // Blur/Focus Loss Validation States
+  signUpEmailError = signal('');
+  signUpMobileError = signal('');
+  emailStartedTyping = false;
+  mobileStartedTyping = false;
+
+  onEmailChange() {
+    if (this.signUpEmail.trim().length > 0) {
+      this.emailStartedTyping = true;
+    }
+    this.signUpEmailError.set('');
+  }
+
+  onEmailBlur() {
+    if (this.emailStartedTyping) {
+      const val = this.signUpEmail.trim();
+      if (!val) {
+        this.signUpEmailError.set('Email is required.');
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(val)) {
+          this.signUpEmailError.set('Please enter a valid email address.');
+        }
+      }
+    }
+  }
+
+  onMobileChange() {
+    this.signUpMobile = this.signUpMobile.replace(/[^0-9+]/g, '');
+    if (this.signUpMobile.trim().length > 0) {
+      this.mobileStartedTyping = true;
+    }
+    this.signUpMobileError.set('');
+  }
+
+  onMobileKeyPress(event: KeyboardEvent) {
+    // Block non-numeric characters (except '+' prefix)
+    if (!/[0-9+]/.test(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  onMobileBlur() {
+    if (this.mobileStartedTyping) {
+      const val = this.signUpMobile.trim();
+      if (!val) {
+        this.signUpMobileError.set('Mobile Number is required.');
+      } else {
+        const mobileRegex = /^(\+?\d{1,4}[\s-]?)?\d{10}$/;
+        if (!mobileRegex.test(val)) {
+          this.signUpMobileError.set('Please enter a valid 10-digit mobile number.');
+        }
+      }
+    }
+  }
+
   // Reactive Password Strength for Lamp Animation
   passwordStrength = computed(() => {
     const pwd = this.isSignUp() ? this.signUpPassword() : this.signInPassword();
@@ -60,6 +116,10 @@ export class AuthComponent {
     this.successMessage.set('');
     this.signInPassword.set('');
     this.signUpPassword.set('');
+    this.signUpEmailError.set('');
+    this.signUpMobileError.set('');
+    this.emailStartedTyping = false;
+    this.mobileStartedTyping = false;
   }
 
   onSignIn() {
@@ -95,12 +155,18 @@ export class AuthComponent {
       this.errorMessage.set('Full Name is required.');
       return;
     }
-    if (!this.signUpEmail.trim()) {
-      this.errorMessage.set('Email is required.');
+    // Force blur checks on submission
+    this.emailStartedTyping = true;
+    this.mobileStartedTyping = true;
+    this.onEmailBlur();
+    this.onMobileBlur();
+
+    if (this.signUpEmailError()) {
+      this.errorMessage.set(this.signUpEmailError());
       return;
     }
-    if (!this.signUpMobile.trim()) {
-      this.errorMessage.set('Mobile Number is required.');
+    if (this.signUpMobileError()) {
+      this.errorMessage.set(this.signUpMobileError());
       return;
     }
     if (!this.signUpPassword().trim()) {

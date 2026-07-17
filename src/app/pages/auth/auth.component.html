@@ -216,10 +216,16 @@
                 type="email"
                 required
                 name="signUpEmail"
-                [(ngModel)]="signUpEmail"
+                [ngModel]="signUpEmail"
+                (ngModelChange)="signUpEmail = $event; onEmailChange()"
+                (blur)="onEmailBlur()"
                 placeholder="e.g. customer@example.com"
-                class="w-full bg-slate-955 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-655 focus:outline-none focus:border-teal-500 text-sm font-mono"
+                [class.border-rose-500]="signUpEmailError()"
+                class="w-full bg-slate-955 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-655 focus:outline-none focus:border-teal-500 text-sm font-mono transition-colors"
               />
+              @if (signUpEmailError()) {
+                <p class="text-rose-400 text-[10px] mt-1 font-mono animate-fade-in">{{ signUpEmailError() }}</p>
+              }
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Mobile Number</label>
@@ -227,10 +233,17 @@
                 type="tel"
                 required
                 name="signUpMobile"
-                [(ngModel)]="signUpMobile"
+                [ngModel]="signUpMobile"
+                (ngModelChange)="signUpMobile = $event; onMobileChange()"
+                (keypress)="onMobileKeyPress($event)"
+                (blur)="onMobileBlur()"
                 placeholder="e.g. +919876543210"
-                class="w-full bg-slate-955 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-655 focus:outline-none focus:border-teal-500 text-sm font-mono"
+                [class.border-rose-500]="signUpMobileError()"
+                class="w-full bg-slate-955 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-655 focus:outline-none focus:border-teal-500 text-sm font-mono transition-colors"
               />
+              @if (signUpMobileError()) {
+                <p class="text-rose-400 text-[10px] mt-1 font-mono animate-fade-in">{{ signUpMobileError() }}</p>
+              }
             </div>
             <div>
               <div class="flex items-center justify-between mb-2">

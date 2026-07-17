@@ -39,6 +39,7 @@ export function getCategoryId(category: string): number {
     case 'coolers': return 3;
     case 'fans': return 4;
     case 'stabilizers': return 5;
+    case 'smart home automation': return 6;
     default: return 1;
   }
 }
@@ -50,6 +51,7 @@ export function getCategoryNameById(id: number | null | undefined): string {
     case 3: return 'Coolers';
     case 4: return 'Fans';
     case 5: return 'Stabilizers';
+    case 6: return 'Smart Home Automation';
     default: return 'Inverters';
   }
 }
