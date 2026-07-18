@@ -71,16 +71,12 @@
         <div>
           <label for="category"
             class="block text-xs font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Category *</label>
-          <select id="category" name="category" required [(ngModel)]="formData.category"
+          <select id="category" name="category" required [(ngModel)]="formData.categoryId"
             class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-teal-500 text-sm cursor-pointer">
-            <option value="" disabled>Select category...</option>
-            <option value="Inverters">Inverters</option>
-            <option value="Batteries">Batteries</option>
-            <option value="Coolers">Coolers</option>
-            <option value="Fans">Fans</option>
-            <option value="Stabilizers">Stabilizers</option>
-            <option value="Spares">Spare Parts</option>
-            <option value="Smart Home Automation">Smart Home Automation</option>
+            <option [ngValue]="0" disabled>Select category...</option>
+            @for (cat of categories(); track cat.id) {
+            <option [ngValue]="cat.id">{{ cat.name }}</option>
+            }
           </select>
         </div>
 

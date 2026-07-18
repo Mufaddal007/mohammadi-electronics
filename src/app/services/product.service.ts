@@ -2,7 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { ProductCatalogItem, ProductSaveRequest } from '../models/product.model';
+import { ProductCatalogItem, ProductSaveRequest, setGlobalCategories } from '../models/product.model';
+import { Category } from '../models/category.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +12,25 @@ export class ProductService {
   public domain: string = 'https://mohammadielectronics.com';
   private http = inject(HttpClient);
 
+  constructor() {
+    this.getCategories().subscribe({
+      next: (cats) => {
+        if (cats && cats.length > 0) {
+          setGlobalCategories(cats);
+        }
+      },
+      error: (err) => console.error('Failed to initialize global categories list', err)
+    });
+  }
+
   getProducts(): Observable<ProductCatalogItem[]> {
     return this.http.get<ProductCatalogItem[]>(this.domain + '/api/products').pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getCategories(): Observable<Category[]> {
+    return this.http.get<Category[]>(this.domain + '/api/categories').pipe(
       catchError(this.handleError)
     );
   }

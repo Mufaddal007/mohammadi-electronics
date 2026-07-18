@@ -5,6 +5,7 @@ import { ProductService } from '../../services/product.service';
 import { AuthService } from '../../services/auth.service';
 import { OrderService } from '../../services/order.service';
 import { ProductCatalogItem, getCategoryNameById } from '../../models/product.model';
+import { Category } from '../../models/category.model';
 import { OrderPlacementRequest } from '../../models/order.model';
 
 export interface Product {
@@ -130,6 +131,18 @@ export class CatalogComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.productService.getCategories().subscribe({
+      next: (apiCategories) => {
+        if (apiCategories && apiCategories.length > 0) {
+          const catNames = apiCategories.map(c => c.name);
+          this.categories = ['All', ...catNames];
+        }
+      },
+      error: (err) => {
+        console.error('Error loading categories from API, keeping hardcoded list', err);
+      }
+    });
+
     this.productService.getProducts().subscribe({
       next: (apiProducts) => {
         const mapped: Product[] = apiProducts.map(p => {

@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MockDataService, Product } from '../../services/mock-data.service';
 import { ProductService } from '../../services/product.service';
-import { ProductSaveRequest, ProductCatalogItem, ProductSpec, getCategoryId, getCategoryNameById } from '../../models/product.model';
+import { ProductSaveRequest, ProductCatalogItem, ProductSpec, globalCategories, getCategoryNameById } from '../../models/product.model';
+import { Category } from '../../models/category.model';
 import * as XLSX from 'xlsx';
 import * as ExcelJS from 'exceljs';
 
@@ -42,11 +43,13 @@ export class AdminInventoryComponent implements OnInit {
   deleteProgress = signal(0);
   deleteTotal = signal(0);
 
+  categories = signal<Category[]>(globalCategories);
+
   filteredProducts = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
     if (!query) return this.products();
-    return this.products().filter(p => 
-      p.name.toLowerCase().includes(query) || 
+    return this.products().filter(p =>
+      p.name.toLowerCase().includes(query) ||
       p.brand.toLowerCase().includes(query) ||
       p.category.toLowerCase().includes(query)
     );
@@ -55,7 +58,7 @@ export class AdminInventoryComponent implements OnInit {
   formData = {
     name: '',
     brand: '',
-    category: '',
+    categoryId: 0 as number,
     price: 0,
     quantity: 0,
     stockStatus: 'in-stock' as Product['stockStatus'],
@@ -64,6 +67,7 @@ export class AdminInventoryComponent implements OnInit {
 
   ngOnInit() {
     this.loadProducts();
+    this.loadCategories();
   }
 
   resolveImageUrl(url: string | undefined | null): string {
@@ -77,7 +81,7 @@ export class AdminInventoryComponent implements OnInit {
     if (!input.files || input.files.length === 0) return;
 
     const file = input.files[0];
-    
+
     // Validate file type
     const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
     const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
@@ -114,7 +118,7 @@ export class AdminInventoryComponent implements OnInit {
         const workbook = XLSX.read(data, { type: 'array' });
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
-        
+
         // Parse rows as raw array of objects
         const rawRows = XLSX.utils.sheet_to_json(worksheet) as any[];
         if (rawRows.length === 0) {
@@ -158,7 +162,7 @@ export class AdminInventoryComponent implements OnInit {
             parsed.push({
               name: productName,
               brand: brand || 'Generic',
-              category: category || 'Inverters',
+              category: category || (this.categories().length > 0 ? this.categories()[0].name : 'Home Appliances'),
               specifications: specifications,
               price: price,
               quantity: stock,
@@ -204,11 +208,11 @@ export class AdminInventoryComponent implements OnInit {
       }
 
       const item = list[index];
-      
+
       const specsArray = item.specifications
         ? item.specifications.split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 0)
         : [];
-      
+
       const specsObjArray: ProductSpec[] = specsArray.map((spec: string) => {
         const colonIndex = spec.indexOf(':');
         if (colonIndex > -1) {
@@ -229,7 +233,7 @@ export class AdminInventoryComponent implements OnInit {
 
       const payload: ProductSaveRequest = {
         id: null,
-        category_id: getCategoryId(item.category),
+        category_id: this.getCategoryIdFromName(item.category),
         name: item.name.trim(),
         slug: slug,
         description: item.name.trim(),
@@ -260,9 +264,9 @@ export class AdminInventoryComponent implements OnInit {
         const mapped: Product[] = apiProducts.map(p => {
           const brandSpec = p.specs?.find(s => s.spec_key.toLowerCase() === 'brand');
           const brand = brandSpec ? brandSpec.spec_value : (p.name.split(' ')[0] || 'Generic');
-          
+
           const specifications = p.specs?.map(s => `${s.spec_key}: ${s.spec_value}`) || [];
-          
+
           let stockStatus: 'in-stock' | 'low-stock' | 'out-of-stock' = 'in-stock';
           if (p.stock_qty <= 0) {
             stockStatus = 'out-of-stock';
@@ -288,6 +292,29 @@ export class AdminInventoryComponent implements OnInit {
         console.error('Error loading products from REST API', err);
       }
     });
+  }
+
+  loadCategories() {
+    this.productService.getCategories().subscribe({
+      next: (apiCategories) => {
+        if (apiCategories && apiCategories.length > 0) {
+          this.categories.set(apiCategories);
+        }
+      },
+      error: (err) => {
+        console.error('Error loading categories from API, keeping default list', err);
+      }
+    });
+  }
+
+  getCategoryIdFromName(categoryName: string): number {
+    const normalized = categoryName?.toLowerCase().trim();
+    if (!normalized) return this.categories().length > 0 ? this.categories()[0].id : 1;
+    const match = this.categories().find(c =>
+      c.name.toLowerCase() === normalized ||
+      c.slug.toLowerCase() === normalized
+    );
+    return match ? match.id : (this.categories().length > 0 ? this.categories()[0].id : 1);
   }
 
   toggleAddForm() {
@@ -345,7 +372,7 @@ export class AdminInventoryComponent implements OnInit {
 
       const payload: ProductSaveRequest = {
         id: this.isEditing() && this.editingId ? Number(this.editingId) : null,
-        category_id: getCategoryId(this.formData.category),
+        category_id: this.formData.categoryId,
         name: this.formData.name.trim(),
         slug: slug,
         description: this.formData.name.trim(),
@@ -373,17 +400,17 @@ export class AdminInventoryComponent implements OnInit {
     this.isEditing.set(true);
     this.editingId = prod.id;
     this.rawSpecs = prod.specifications.join(', ');
-    
+
     this.formData = {
       name: prod.name,
       brand: prod.brand,
-      category: prod.category,
+      categoryId: this.getCategoryIdFromName(prod.category),
       price: prod.price,
       quantity: prod.quantity,
       stockStatus: prod.stockStatus,
       imageUrl: prod.imageUrl
     };
-    
+
     this.showForm.set(true);
   }
 
@@ -404,7 +431,7 @@ export class AdminInventoryComponent implements OnInit {
     this.formData = {
       name: '',
       brand: '',
-      category: '',
+      categoryId: 0,
       price: 0,
       quantity: 0,
       stockStatus: 'in-stock',
@@ -475,7 +502,7 @@ export class AdminInventoryComponent implements OnInit {
         alert('Bulk deletion completed successfully.');
         return;
       }
-      
+
       const prodId = Number(ids[index]);
       this.productService.deleteProduct(prodId).subscribe({
         next: () => {
@@ -524,7 +551,7 @@ export class AdminInventoryComponent implements OnInit {
 
       const payload: ProductSaveRequest = {
         id: Number(prodObj.id),
-        category_id: getCategoryId(prodObj.category),
+        category_id: this.getCategoryIdFromName(prodObj.category),
         name: prodObj.name,
         slug: prodObj.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
         description: prodObj.name,
@@ -585,12 +612,13 @@ export class AdminInventoryComponent implements OnInit {
       image: ''
     });
 
+    const categoriesList = this.categories().map(c => c.name).join(',');
     // Apply data validation list (dropdown menu) to the Category column on rows 2 to 500
     for (let i = 2; i <= 500; i++) {
       worksheet.getCell(`C${i}`).dataValidation = {
         type: 'list',
         allowBlank: true,
-        formulae: ['"Inverters,Batteries,Coolers,Fans,Stabilizers,Smart Home Automation"']
+        formulae: [`"${categoriesList}"`]
       };
     }
 

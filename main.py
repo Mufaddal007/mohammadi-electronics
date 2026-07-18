@@ -106,6 +106,31 @@ def init_db():
             role TEXT NOT NULL DEFAULT 'user'
         )
     """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS categories (
+            id INTEGER PRIMARY KEY,
+            name TEXT UNIQUE NOT NULL,
+            slug TEXT UNIQUE NOT NULL,
+            description TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    # Check if empty, seed default categories matching spec and user actions
+    cursor.execute("SELECT COUNT(*) FROM categories")
+    if cursor.fetchone()[0] == 0:
+        default_categories = [
+            (1, "Home Appliances", "home-appliances", "Fans, water heaters, air coolers, and kitchen appliances"),
+            (2, "Inverter Batteries", "inverter-batteries", "Tubular, flat plate, and solar batteries"),
+            (3, "Inverters & UPS", "inverters-ups", "Home inverters, commercial UPS systems, and power backups"),
+            (4, "Solar Solutions", "solar-solutions", "Solar panels, charge controllers, and hybrid systems"),
+            (5, "Spare Parts & Accessories", "spares-accessories", "Connectors, circuit boards, cables, and battery stands"),
+            (6, "Voltage Stabilizers", "voltage-stabilizers", "Mainline, AC, TV, and refrigerator stabilizers"),
+            (7, "Smart Home Automation", "smart-home-automation", "Define smart automated workflows for appliances")
+        ]
+        cursor.executemany(
+            "INSERT INTO categories (id, name, slug, description) VALUES (?, ?, ?, ?)",
+            default_categories
+        )
     conn.commit()
     conn.close()
 
@@ -322,6 +347,24 @@ def view_product_demands(admin_user: dict = Depends(verify_admin_role)):
     conn.close()
     return records
 
+
+
+@app.get("/api/categories")
+def get_product_categories():
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT * FROM categories ORDER BY name ASC")
+        records = [dict(row) for row in cursor.fetchall()]
+        return records
+    except sqlite3.Error as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Database extraction error: {e}"
+        )
+    finally:
+        conn.close()
 
 
 # 1. PUBLIC ROUTE: Fetch all products with their specs and stock counts
