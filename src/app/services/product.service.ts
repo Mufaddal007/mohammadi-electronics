@@ -58,6 +58,14 @@ export class ProductService {
     );
   }
 
+  generateInvoice(payload: any): Observable<Blob> {
+    return this.http.post(`${this.domain}/api/invoices/generate`, payload, {
+      responseType: 'blob'
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   private handleError(error: HttpErrorResponse) {
     let errorMsg = 'An unknown error occurred!';
     if (error.error instanceof ErrorEvent) {

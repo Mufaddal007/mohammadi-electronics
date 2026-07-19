@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, APIRouter, Response
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from datetime import datetime, timedelta
@@ -6,13 +6,16 @@ from passlib.context import CryptContext
 import sqlite3
 import jwt
 from typing import List, Optional
-from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import shutil
 from fastapi import File, UploadFile
+import io
+from fastapi.templating import Jinja2Templates
+from xhtml2pdf import pisa
 
 
+templates = Jinja2Templates(directory="templates")
 UPLOAD_DIR = "/var/www/mohammadiElectronics/media"
 # --- NEW DATA MODELS FOR INVENTORY ---
 
@@ -106,31 +109,6 @@ def init_db():
             role TEXT NOT NULL DEFAULT 'user'
         )
     """)
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS categories (
-            id INTEGER PRIMARY KEY,
-            name TEXT UNIQUE NOT NULL,
-            slug TEXT UNIQUE NOT NULL,
-            description TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    # Check if empty, seed default categories matching spec and user actions
-    cursor.execute("SELECT COUNT(*) FROM categories")
-    if cursor.fetchone()[0] == 0:
-        default_categories = [
-            (1, "Home Appliances", "home-appliances", "Fans, water heaters, air coolers, and kitchen appliances"),
-            (2, "Inverter Batteries", "inverter-batteries", "Tubular, flat plate, and solar batteries"),
-            (3, "Inverters & UPS", "inverters-ups", "Home inverters, commercial UPS systems, and power backups"),
-            (4, "Solar Solutions", "solar-solutions", "Solar panels, charge controllers, and hybrid systems"),
-            (5, "Spare Parts & Accessories", "spares-accessories", "Connectors, circuit boards, cables, and battery stands"),
-            (6, "Voltage Stabilizers", "voltage-stabilizers", "Mainline, AC, TV, and refrigerator stabilizers"),
-            (7, "Smart Home Automation", "smart-home-automation", "Define smart automated workflows for appliances")
-        ]
-        cursor.executemany(
-            "INSERT INTO categories (id, name, slug, description) VALUES (?, ?, ?, ?)",
-            default_categories
-        )
     conn.commit()
     conn.close()
 
@@ -174,6 +152,98 @@ def verify_admin_role(current_user: dict = Depends(get_current_user)):
     return current_user
 
 # --- API ROUTES ---
+
+@app.get("/api/categories", status_code=status.HTTP_200_OK)
+def get_all_product_categories():
+    """
+    Fetch all active product categories available in the system catalog.
+    Public route: Accessible by all clients for navigation and filtering.
+    """
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row  # Maps results directly into dict objects
+    cursor = conn.cursor()
+    
+    query = """
+        SELECT id, name, slug, description, created_at 
+        FROM categories 
+        ORDER BY name ASC;
+    """
+    try:
+        cursor.execute(query)
+        categories = [dict(row) for row in cursor.fetchall()]
+        return categories
+    except sqlite3.Error as e:
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Database extraction error: {e}"
+        )
+    finally:
+        conn.close()
+
+
+
+
+@app.post("/api/invoices/generate", response_class=Response)
+async def generate_invoice_pdf(payload: dict): # Uses dynamic dict to bypass pydantic compilation issues
+    """
+    Accepts explicit order details, processes financial figures, passes them to a 
+    Jinja2 HTML template, and renders an A4 PDF blob stream using xhtml2pdf.
+    """
+    try:
+        # 1. Extract structural data metrics
+        invoice_no = payload.get("invoice_no", "ME-TEMP")
+        date = payload.get("date", "")
+        payment_mode = payload.get("payment_mode", "Cash/UPI")
+        customer = payload.get("customer", {})
+        items = payload.get("items", [])
+
+        # 2. Compute financial details securely on the server side
+        subtotal = sum(float(item.get("rate", 0)) * int(item.get("qty", 1)) for item in items)
+        gst_amount = subtotal - (subtotal / 1.18)  # 18% inclusive GST calculation
+        grand_total = subtotal
+
+        # 3. Package context properties to match Jinja template fields
+        context = {
+            "invoice_no": invoice_no,
+            "date": date,
+            "payment_mode": payment_mode,
+            "customer": customer,
+            "items": items,
+            "subtotal": subtotal,
+            "gst_amount": gst_amount,
+            "grand_total": grand_total
+        }
+
+        # 4. Render HTML content using the Jinja template
+        template = templates.get_template("invoice_template.html")
+        html_content = template.render(context)
+
+        # 5. Compile HTML to PDF in memory using pure-Python pisa engine
+        pdf_buffer = io.BytesIO()
+        pisa_status = pisa.CreatePDF(io.StringIO(html_content), dest=pdf_buffer)
+
+        if pisa_status.err:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="PDF rendering engine encountered structural layout errors."
+            )
+
+        # 6. Retrieve raw binary bytes and construct server response headers
+        pdf_bytes = pdf_buffer.getvalue()
+        pdf_buffer.close()
+
+        headers = {
+            'Content-Disposition': f'inline; filename="invoice_{invoice_no}.pdf"',
+            'Content-Type': 'application/pdf'
+        }
+        
+        return Response(content=pdf_bytes, media_type="application/pdf", headers=headers)
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate invoice document: {str(e)}"
+        )
 
 
 @app.delete("/api/admin/products/{product_id}", status_code=status.HTTP_200_OK)
@@ -347,24 +417,6 @@ def view_product_demands(admin_user: dict = Depends(verify_admin_role)):
     conn.close()
     return records
 
-
-
-@app.get("/api/categories")
-def get_product_categories():
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    try:
-        cursor.execute("SELECT * FROM categories ORDER BY name ASC")
-        records = [dict(row) for row in cursor.fetchall()]
-        return records
-    except sqlite3.Error as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Database extraction error: {e}"
-        )
-    finally:
-        conn.close()
 
 
 # 1. PUBLIC ROUTE: Fetch all products with their specs and stock counts

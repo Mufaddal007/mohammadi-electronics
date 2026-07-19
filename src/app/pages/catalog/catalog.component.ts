@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
@@ -27,7 +27,7 @@ export interface Product {
   templateUrl: './catalog.component.html',
   styleUrl: './catalog.component.css'
 })
-export class CatalogComponent implements OnInit {
+export class CatalogComponent implements OnInit, OnDestroy {
   private productService = inject(ProductService);
   private authService = inject(AuthService);
   private orderService = inject(OrderService);
@@ -45,6 +45,49 @@ export class CatalogComponent implements OnInit {
   showOrderModal = signal(false);
   selectedProduct = signal<Product | null>(null);
   submittingOrder = signal(false);
+
+  // Carousel State
+  currentCarouselIndex = signal(0);
+  private carouselInterval: any = null;
+
+  newArrivals = computed(() => {
+    // Top 5 latest products
+    return [...this.products()]
+      .sort((a, b) => Number(b.id) - Number(a.id))
+      .slice(0, 5);
+  });
+
+  initCarouselAutoPlay() {
+    if (this.carouselInterval) {
+      clearInterval(this.carouselInterval);
+    }
+    this.carouselInterval = setInterval(() => {
+      this.nextCarouselSlide();
+    }, 5000);
+  }
+
+  nextCarouselSlide() {
+    const total = this.newArrivals().length;
+    if (total === 0) return;
+    this.currentCarouselIndex.update(idx => (idx + 1) % total);
+  }
+
+  prevCarouselSlide() {
+    const total = this.newArrivals().length;
+    if (total === 0) return;
+    this.currentCarouselIndex.update(idx => (idx - 1 + total) % total);
+  }
+
+  setCarouselSlide(idx: number) {
+    this.currentCarouselIndex.set(idx);
+    this.initCarouselAutoPlay();
+  }
+
+  ngOnDestroy() {
+    if (this.carouselInterval) {
+      clearInterval(this.carouselInterval);
+    }
+  }
 
   // Form Fields
   customerName = signal('');
@@ -173,6 +216,7 @@ export class CatalogComponent implements OnInit {
           };
         });
         this.products.set(mapped);
+        this.initCarouselAutoPlay();
       },
       error: (err) => {
         console.error('Error loading products from backend API', err);

@@ -1,0 +1,261 @@
+<div class="space-y-6 max-w-7xl mx-auto">
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-black text-white uppercase tracking-tight font-sans">
+        Store Invoice Billing Desk
+      </h1>
+      <p class="text-[10px] text-slate-400 font-mono mt-1 uppercase tracking-wider">
+        Create professional digital invoices and stream downloads directly
+      </p>
+    </div>
+    <div>
+      <button 
+        (click)="generateAutoInvoiceNo()"
+        class="px-4 py-2 bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-teal-500/50 text-slate-350 hover:text-teal-400 font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-300 cursor-pointer"
+      >
+        Regenerate Invoice Number
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  @if (errorMessage()) {
+    <div class="p-4 bg-rose-500/10 border border-rose-500/25 rounded-2xl text-rose-400 text-xs font-mono animate-fade-in">
+      ⚠️ {{ errorMessage() }}
+    </div>
+  }
+  @if (successMessage()) {
+    <div class="p-4 bg-emerald-500/10 border border-emerald-500/25 rounded-2xl text-emerald-400 text-xs font-mono animate-fade-in">
+      ✓ {{ successMessage() }}
+    </div>
+  }
+
+  <!-- Split Panel Layout -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Left Column: Fields (2 cols) -->
+    <div class="lg:col-span-2 space-y-6">
+      
+      <!-- Panel 1: Invoice metadata & Customer -->
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl space-y-6">
+        <h2 class="text-sm font-bold text-teal-400 uppercase tracking-widest font-mono border-b border-slate-800 pb-3">
+          1. Billing Details & Recipient
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <!-- Invoice Number -->
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Invoice No</label>
+            <input 
+              type="text" 
+              [(ngModel)]="invoiceNo"
+              placeholder="e.g. ME-2026-1052"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 text-xs font-mono"
+            />
+          </div>
+          <!-- Date -->
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Billing Date</label>
+            <input 
+              type="date" 
+              [(ngModel)]="invoiceDate"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-teal-500 text-xs font-mono"
+            />
+          </div>
+          <!-- Payment Mode -->
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Payment Mode</label>
+            <select 
+              [(ngModel)]="paymentMode"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:border-teal-500 text-xs cursor-pointer"
+            >
+              @for (mode of paymentModes; track mode) {
+                <option [value]="mode">{{ mode }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 border-t border-slate-850/60 pt-5">
+          <!-- Customer Name -->
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Customer Name *</label>
+            <input 
+              type="text" 
+              [(ngModel)]="customerName"
+              placeholder="e.g. Mufaddal Darbar"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 text-xs"
+            />
+          </div>
+          <!-- Mobile -->
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Mobile Number *</label>
+            <input 
+              type="tel" 
+              [(ngModel)]="customerMobile"
+              placeholder="e.g. 9999988888"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 text-xs font-mono"
+            />
+          </div>
+          <!-- Address -->
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono mb-2">Shipping Address</label>
+            <input 
+              type="text" 
+              [(ngModel)]="customerAddress"
+              placeholder="e.g. Bhopal, MP"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-650 focus:outline-none focus:border-teal-500 text-xs"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 2: Items list -->
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl space-y-6">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h2 class="text-sm font-bold text-teal-400 uppercase tracking-widest font-mono">
+            2. Line Items Configuration
+          </h2>
+          <button 
+            (click)="addItem()"
+            class="px-3.5 py-1.5 bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 border border-teal-500/25 hover:border-teal-500/40 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer font-mono"
+          >
+            + Add Item Line
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          @for (item of items(); track $index) {
+            <div class="p-4 bg-slate-950/60 border border-slate-850 rounded-2xl space-y-4 relative group">
+              <!-- Delete line button -->
+              <button 
+                (click)="removeItem($index)"
+                class="absolute top-3 right-3 text-slate-555 hover:text-rose-500 transition-colors p-1.5"
+                title="Delete Line Item"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                <!-- Suggestion dropdown (4 cols) -->
+                <div class="md:col-span-4">
+                  <label class="block text-[8px] font-mono text-slate-500 uppercase tracking-wider mb-1.5">Product Suggestion</label>
+                  <select 
+                    (change)="onProductSelect($index, $event)"
+                    class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer"
+                  >
+                    <option value="" disabled selected>Prefill from catalog...</option>
+                    @for (prod of catalogProducts(); track prod.id) {
+                      <option [value]="prod.id">{{ prod.name }} (₹{{ prod.price }})</option>
+                    }
+                  </select>
+                </div>
+
+                <!-- Custom Item name (4 cols) -->
+                <div class="md:col-span-4">
+                  <label class="block text-[8px] font-mono text-slate-500 uppercase tracking-wider mb-1.5">Description *</label>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="item.name"
+                    placeholder="Item description or details..."
+                    class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+
+                <!-- Rate (2 cols) -->
+                <div class="md:col-span-2">
+                  <label class="block text-[8px] font-mono text-slate-500 uppercase tracking-wider mb-1.5">Rate (₹) *</label>
+                  <input 
+                    type="number" 
+                    [(ngModel)]="item.rate"
+                    min="0"
+                    placeholder="Rate"
+                    class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-teal-500 font-mono text-right"
+                  />
+                </div>
+
+                <!-- Quantity (2 cols) -->
+                <div class="md:col-span-2">
+                  <label class="block text-[8px] font-mono text-slate-500 uppercase tracking-wider mb-1.5">Qty *</label>
+                  <input 
+                    type="number" 
+                    [(ngModel)]="item.qty"
+                    min="1"
+                    placeholder="Qty"
+                    class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-teal-500 font-mono text-center"
+                  />
+                </div>
+              </div>
+
+              <!-- Item amount total label -->
+              <div class="flex justify-end text-[10px] text-slate-400 font-mono">
+                Amount: <span class="text-white font-bold ml-1">₹{{ (item.rate * item.qty).toLocaleString('en-IN') }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Live summary widget (1 col) -->
+    <div class="space-y-6">
+      <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800/80 rounded-3xl p-6 shadow-xl sticky top-24 space-y-6">
+        <h2 class="text-sm font-bold text-amber-500 uppercase tracking-widest font-mono border-b border-slate-800 pb-3">
+          Billing Summary
+        </h2>
+
+        <!-- Key values -->
+        <div class="space-y-3 font-mono text-xs text-slate-350">
+          <div class="flex justify-between">
+            <span>Invoice No:</span>
+            <span class="text-white font-bold">{{ invoiceNo || 'N/A' }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Date:</span>
+            <span class="text-white font-bold">{{ invoiceDate || 'N/A' }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Payment Mode:</span>
+            <span class="text-white font-bold">{{ paymentMode }}</span>
+          </div>
+          <div class="flex justify-between border-t border-slate-850/60 pt-3">
+            <span>Customer:</span>
+            <span class="text-white font-bold truncate max-w-[150px]" [title]="customerName">{{ customerName || 'N/A' }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Mobile:</span>
+            <span class="text-white font-bold">{{ customerMobile || 'N/A' }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Address:</span>
+            <span class="text-white font-bold truncate max-w-[150px]" [title]="customerAddress">{{ customerAddress || 'N/A' }}</span>
+          </div>
+          
+          <div class="border-t border-slate-850/60 pt-4 flex justify-between items-baseline">
+            <span class="text-slate-400 uppercase tracking-wider text-[9px] font-bold">Grand Total</span>
+            <span class="text-2xl font-black text-white">₹{{ grandTotal.toLocaleString('en-IN') }}</span>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <button 
+          (click)="generateInvoice()"
+          [disabled]="generating()"
+          class="w-full py-4 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-400 hover:to-teal-500 text-slate-955 font-black rounded-2xl text-xs uppercase tracking-widest transition-all duration-300 shadow-[0_0_20px_rgba(20,184,166,0.2)] disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+        >
+          @if (generating()) {
+            <div class="h-4.5 w-4.5 animate-spin rounded-full border-2 border-solid border-slate-955 border-r-transparent"></div>
+            <span>Generating PDF...</span>
+          } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Generate & Download</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

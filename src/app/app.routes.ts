@@ -112,6 +112,12 @@ export const routes: Routes = [
     title: 'Admin - Smart Home Queries',
     canActivate: [adminGuard]
   },
+  {
+    path: 'admin/invoices',
+    loadComponent: () => import('./pages/admin-invoices/admin-invoices.component').then(m => m.AdminInvoicesComponent),
+    title: 'Admin - Invoice Generator',
+    canActivate: [adminGuard]
+  },
 
   // Fallback
   {
