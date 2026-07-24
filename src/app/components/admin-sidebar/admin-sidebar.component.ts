@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { MockDataService } from '../../services/mock-data.service';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-admin-sidebar',
@@ -11,6 +12,7 @@ import { MockDataService } from '../../services/mock-data.service';
 })
 export class AdminSidebarComponent {
   private dataService = inject(MockDataService);
+  public themeService = inject(ThemeService);
   private router = inject(Router);
 
   menuItems = [

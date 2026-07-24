@@ -2,6 +2,7 @@ import { Component, signal, inject, computed } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-header',
@@ -12,6 +13,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class HeaderComponent {
   private authService = inject(AuthService);
+  public themeService = inject(ThemeService);
   private router = inject(Router);
 
   isMenuOpen = signal(false);

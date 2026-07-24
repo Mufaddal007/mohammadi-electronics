@@ -5,6 +5,7 @@ import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { AdminSidebarComponent } from './components/admin-sidebar/admin-sidebar.component';
 import { LoadingService } from './services/loading.service';
+import { ThemeService } from './services/theme.service';
 import { ErrorComponent } from './components/error/error.component';
 import { filter } from 'rxjs/operators';
 
@@ -25,6 +26,7 @@ import { filter } from 'rxjs/operators';
 export class App {
   private router = inject(Router);
   private loadingService = inject(LoadingService);
+  public themeService = inject(ThemeService);
 
   isAdminMode = signal(false);
   isLoading = this.loadingService.isLoading;
